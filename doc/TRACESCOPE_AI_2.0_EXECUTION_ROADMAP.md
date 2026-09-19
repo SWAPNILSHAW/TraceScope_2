@@ -82,7 +82,7 @@ Input Scanned Image (PNG / TIF / JPG)
 | **3** | **Forensic Preprocessing & Residual Validation** | Standardize & validate numerical stability of residual extraction | Grayscale & normalization pipeline, `original.png`, `denoised.png`, `residual.png`, histogram, FFT plot | Numerically stable, no clipping/overflow, identical across train & inference |
 | **4** | **Traditional ML Baselines** | Establish classical ML benchmarks (RF, SVM) on frozen splits | `baseline_metrics.csv`, confusion matrix, saved models/scalers, `baseline_experiment.md` | Re-running test evaluation reproduces metrics within defined tolerance |
 | **5** | **Deep CNN Baseline (ResNet-18)** | Test deep learned residual features using high-pass + ResNet-18 | `resnet18_best.pth`, `training_history.csv`, `loss_accuracy_curves.png`, `test_metrics.csv`, `resnet18_confusion_matrix.png` | **COMPLETE (PASS)**: Locked Test Accuracy = **97.35%**, Macro-F1 = **0.9735** |
-| **6** | **Hybrid CNN Primary Model** | Implement & train dual-branch fusion (Residual CNN + 17 features) | `scanner_hybrid.keras`, scaler, label encoder, fingerprint DB, training logs, test metrics | Hybrid evaluated on identical locked test manifest with matching preprocessing |
+| **6** | **Hybrid CNN Primary Model** | Implement & train dual-branch fusion (Residual CNN + 44 features) | `scanner_hybrid.keras`, scaler, label encoder, training history, test metrics, confusion matrix | **COMPLETE (PASS)**: Locked Test Accuracy = **82.35%**, Macro-F1 = **0.8231** |
 | **7** | **Ablation Study** | Systematically isolate contributions of individual components | 6-experiment matrix (A through F), `ablation_results.csv`, contribution bar charts | Statistically measurable performance deltas validating dual-branch fusion |
 | **8** | **Robustness Testing** | Quantify degradation under common image transformations | JPEG, resize, crop, rotation, brightness, contrast, blur across severity levels; `robustness_matrix.csv` | Reproducible transformation pipeline with documented failure thresholds |
 | **9** | **Open-Set / Unknown Scanner Detection** | Enable rejection of unseen scanners to prevent false-positive certainty | Hold-out evaluation, cosine/softmax thresholding, ROC/PR curves, `known_vs_unknown_metrics.csv` | Explicit "Unknown Source" decision pathway with validation-calibrated threshold |
@@ -214,7 +214,7 @@ Input Scanned Image (PNG / TIF / JPG)
   - `results/hybrid_cnn/training_history.csv`, `hybrid_training_curves.png`.
   - `results/hybrid_cnn/test_metrics.csv`, `hybrid_confusion_matrix.png`.
   - `doc/phase_reports/phase_06_report.md`.
-- **Go/No-Go Checkpoint:** PASS when Hybrid CNN is evaluated on the exact same locked test manifest as the baselines with verified reproducibility.
+- **Go/No-Go Checkpoint:** **PASS (VERIFIED)**: Dual-Branch Hybrid CNN achieved **82.35% Accuracy** and **0.8231 Macro-F1** on the locked 680-sample test manifest (+23.82% gain over Random Forest baseline). Model weights and metrics logged to `results/hybrid_cnn/` and `models/hybrid_cnn/`.
 
 ---
 

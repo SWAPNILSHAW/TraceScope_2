@@ -1,0 +1,2 @@
+model,accuracy,macro_precision,macro_recall,macro_f1,test_samples,best_val_accuracy
+Hybrid CNN (Residual + 44 Features),0.8235,0.8273,0.8209,0.8231,680,0.8182
