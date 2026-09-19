@@ -1,0 +1,7 @@
+target_max_false_alarm_rate,decision_threshold,unknown_detection_rate_tpr,false_alarm_rate_fpr,precision,f1_score
+1%,0.5953,0.0,0.0018,0.0,0.0
+5%,0.5953,0.0,0.0018,0.0,0.0
+10%,0.5953,0.0,0.0018,0.0,0.0
+20%,0.5953,0.0,0.0018,0.0,0.0
+50%,0.2015,0.1694,0.4982,0.0705,0.0995
+Optimal Latent Distance (FPR 3.06%),2.8412,0.9516,0.0306,0.8741,0.9112

@@ -1,0 +1,5 @@
+rejection_method,auroc,aupr,fpr_at_95_tpr,known_samples,unknown_samples
+Maximum Softmax Probability (MSP),0.0119,0.1049,1.0,556,124
+Predictive Entropy,0.0142,0.0982,1.0,556,124
+Penultimate Latent Distance,0.9857,0.8829,0.0306,556,124
+Calibrated Hybrid OpenMax Score,0.3837,0.1395,0.7734,556,124
