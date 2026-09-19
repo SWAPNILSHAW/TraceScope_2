@@ -78,6 +78,16 @@ def load_data_splits():
     if not os.path.exists(FEATURES_PATH) or not os.path.exists(ENHANCED_PATH):
         raise FileNotFoundError("Feature pickles not found in results/hybrid_cnn/")
         
+    # Check if files are Git LFS pointers
+    for fpath in [FEATURES_PATH, ENHANCED_PATH]:
+        if os.path.exists(fpath):
+            with open(fpath, "rb") as f:
+                header = f.read(7)
+            if header == b"version":
+                print(f"Detected Git LFS pointer in {os.path.basename(fpath)}. Fetching binary payload via git lfs pull...")
+                os.system("git lfs install && git lfs pull")
+                break
+
     with open(FEATURES_PATH, "rb") as f:
         d_prnu = pickle.load(f)
     with open(ENHANCED_PATH, "rb") as f:
