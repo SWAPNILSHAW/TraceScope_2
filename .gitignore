@@ -27,7 +27,8 @@ data/*
 !data/*.csv
 ai_trace_finder/
 models/
-results/hybrid_cnn/
+results/hybrid_cnn/official_wiki_residuals.pkl
+results/hybrid_cnn/*.keras
 
 # =========================
 # IDE & Editor settings

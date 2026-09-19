@@ -1,0 +1,2 @@
+model,accuracy,macro_precision,macro_recall,macro_f1,test_samples,best_val_accuracy
+ResNet-18 (KV Filter),0.9735,0.9735,0.9735,0.9735,680,0.9765
