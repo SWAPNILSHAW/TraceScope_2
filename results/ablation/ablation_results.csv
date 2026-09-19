@@ -1,0 +1,7 @@
+experiment_id,configuration,accuracy,macro_precision,macro_recall,macro_f1
+Exp_A,CNN Branch Only (Residuals),0.6382,0.6797,0.6386,0.6322
+Exp_B,Handcrafted Features Only (44-dim),0.7574,0.7582,0.7570,0.7562
+Exp_C,PRNU Cross-Correlation Only (11-dim),0.2338,0.2735,0.2332,0.2051
+Exp_D,CNN + PRNU Cross-Correlation,0.2956,0.2784,0.2947,0.2451
+Exp_E,CNN + Enhanced Descriptors (FFT/LBP),0.4265,0.3930,0.4261,0.3795
+Exp_F,Full Hybrid Model (CNN + 44 Features),0.8235,0.8273,0.8209,0.8231
