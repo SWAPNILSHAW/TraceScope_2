@@ -43,10 +43,7 @@ def load_data():
     with open(RES_PATH, "rb") as f:
         residuals_cache = pickle.load(f)
 
-    scanner_fps = None
-    if os.path.exists(FP_PATH):
-        with open(FP_PATH, "rb") as f:
-            scanner_fps = pickle.load(f)
+
 
     grp_counters = {}
     sid_to_info = {}
@@ -73,7 +70,7 @@ def load_data():
             test_samples_by_class[lbl] = []
         test_samples_by_class[lbl].append(res)
 
-    return test_samples_by_class, scanner_fps
+    return test_samples_by_class
 
 def create_tampered_dataset(test_samples_by_class, n_pairs=100, seed=42):
     np.random.seed(seed)
@@ -197,7 +194,7 @@ def compute_metrics(pred_mask, gt_mask):
 
 def evaluate_tampering_suite():
     print("=== TraceScope AI 2.0 - Phase 10: Tampering & Anomaly Localization ===")
-    test_samples_by_class, scanner_fps = load_data()
+    test_samples_by_class = load_data()
 
     print("Generating controlled synthetic tampering benchmark (300 evaluation samples)...")
     dataset = create_tampered_dataset(test_samples_by_class, n_pairs=100)
