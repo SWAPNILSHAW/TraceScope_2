@@ -1,0 +1,4 @@
+forgery_category,samples_evaluated,pixel_iou,pixel_precision,pixel_recall,pixel_f1
+Cross-Scanner Splicing,100,0.031,0.0766,0.0518,0.0496
+Local Inpainting / Erasure,100,0.2436,0.5878,0.3012,0.3587
+Authentic (Untampered),100,0.0,0.0,0.0,0.0
