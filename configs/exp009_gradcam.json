@@ -1,0 +1,8 @@
+{
+  "experiment_id": "EXP009",
+  "phase": 11,
+  "title": "Explainable AI Grad-CAM and Edge Leakage Audit",
+  "target_layer": "conv2d_2",
+  "metrics_output": "results/explainability/explainability_metrics.csv",
+  "catalog_output": "results/explainability/grad_cam_catalog.png"
+}

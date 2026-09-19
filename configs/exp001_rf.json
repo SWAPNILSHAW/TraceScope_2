@@ -1,0 +1,15 @@
+{
+  "experiment_id": "EXP001",
+  "phase": 4,
+  "title": "Random Forest Baseline",
+  "model": "RandomForestClassifier",
+  "params": {
+    "n_estimators": 100,
+    "random_state": 42
+  },
+  "features": "10 statistical handcrafted features",
+  "train_manifest": "splits/train_manifest.csv",
+  "val_manifest": "splits/val_manifest.csv",
+  "test_manifest": "splits/test_manifest.csv",
+  "metrics_output": "results/baseline/baseline_metrics.csv"
+}

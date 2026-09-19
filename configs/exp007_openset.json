@@ -1,0 +1,16 @@
+{
+  "experiment_id": "EXP007",
+  "phase": 9,
+  "title": "Open-Set Unknown Scanner Rejection",
+  "algorithms": [
+    "MSP",
+    "Entropy",
+    "ODIN",
+    "Latent_Distance"
+  ],
+  "holdout_classes": [
+    "EpsonV550",
+    "HP"
+  ],
+  "metrics_output": "results/open_set/known_vs_unknown_metrics.csv"
+}

@@ -1,0 +1,14 @@
+{
+  "experiment_id": "EXP005",
+  "phase": 7,
+  "title": "Systematic Dual-Branch Ablation Study",
+  "experiments": [
+    "Exp_A_CNN_Only",
+    "Exp_B_Feat_Only",
+    "Exp_C_PRNU_11",
+    "Exp_D_Enh_33",
+    "Exp_E_Early_Concat",
+    "Exp_F_Full_Dual_Branch"
+  ],
+  "metrics_output": "results/ablation/ablation_results.csv"
+}

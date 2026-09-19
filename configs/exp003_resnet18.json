@@ -1,0 +1,20 @@
+{
+  "experiment_id": "EXP003",
+  "phase": 5,
+  "title": "ResNet-18 Deep CNN Baseline",
+  "model": "ResNet18_KV",
+  "params": {
+    "pretrained": true,
+    "num_classes": 11,
+    "lr": 0.0001,
+    "batch_size": 32,
+    "epochs": 25
+  },
+  "input_shape": [
+    1,
+    256,
+    256
+  ],
+  "weights_output": "models/cnn/resnet18_best.pth",
+  "metrics_output": "results/cnn/test_metrics.csv"
+}

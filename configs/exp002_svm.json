@@ -1,0 +1,16 @@
+{
+  "experiment_id": "EXP002",
+  "phase": 4,
+  "title": "Support Vector Machine (RBF) Baseline",
+  "model": "SVC_RBF",
+  "params": {
+    "C": 10.0,
+    "gamma": "scale",
+    "random_state": 42
+  },
+  "features": "10 statistical handcrafted features",
+  "train_manifest": "splits/train_manifest.csv",
+  "val_manifest": "splits/val_manifest.csv",
+  "test_manifest": "splits/test_manifest.csv",
+  "metrics_output": "results/baseline/baseline_metrics.csv"
+}

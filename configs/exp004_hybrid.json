@@ -1,0 +1,21 @@
+{
+  "experiment_id": "EXP004",
+  "phase": 6,
+  "title": "Dual-Branch Hybrid CNN Primary Model",
+  "model": "Hybrid_CNN_Fusion",
+  "params": {
+    "lr": 0.001,
+    "batch_size": 32,
+    "epochs": 40,
+    "patience": 10,
+    "seed": 42
+  },
+  "image_shape": [
+    256,
+    256,
+    1
+  ],
+  "feature_dim": 44,
+  "weights_output": "models/hybrid_cnn/scanner_hybrid.keras",
+  "metrics_output": "results/hybrid_cnn/test_metrics.csv"
+}

@@ -1,0 +1,16 @@
+{
+  "experiment_id": "EXP006",
+  "phase": 8,
+  "title": "Robustness and Operational Stress Suite",
+  "families": [
+    "JPEG_Compression",
+    "Gaussian_Blur",
+    "Gaussian_Noise",
+    "Contrast_Adjustment",
+    "Brightness_Adjustment",
+    "Downscale_Upscale",
+    "Rotation"
+  ],
+  "total_evaluations": 29,
+  "metrics_output": "results/robustness/robustness_matrix.csv"
+}

@@ -1,0 +1,12 @@
+{
+  "experiment_id": "EXP008",
+  "phase": 10,
+  "title": "Tampering and Local Anomaly Localization",
+  "categories": [
+    "Cross-Scanner Splicing",
+    "Local Inpainting / Erasure",
+    "Authentic Control"
+  ],
+  "total_test_samples": 300,
+  "metrics_output": "results/tampering/localization_metrics.csv"
+}
