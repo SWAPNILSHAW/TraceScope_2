@@ -1,0 +1,236 @@
+{
+  "python_version": "3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]",
+  "numpy": {
+    "installed": true,
+    "version": "2.2.6"
+  },
+  "pandas": {
+    "installed": true,
+    "version": "2.3.3"
+  },
+  "sklearn": {
+    "installed": true,
+    "version": "1.7.2"
+  },
+  "joblib": {
+    "installed": true,
+    "version": "1.5.2"
+  },
+  "cv2": {
+    "installed": true,
+    "version": "4.12.0"
+  },
+  "skimage": {
+    "installed": true,
+    "version": "0.25.2"
+  },
+  "scipy": {
+    "installed": true,
+    "version": "1.16.3"
+  },
+  "PIL": {
+    "installed": true,
+    "version": "12.0.0"
+  },
+  "torch": {
+    "installed": true,
+    "version": "2.5.1+cu121",
+    "cuda": true,
+    "device": "NVIDIA GeForce RTX 3050 Laptop GPU"
+  },
+  "torchvision": {
+    "installed": true,
+    "version": "0.20.1+cu121"
+  },
+  "tensorflow": {
+    "installed": true,
+    "version": "2.20.0",
+    "cuda": false,
+    "gpus": []
+  },
+  "artifacts": {
+    "models/baseline/random_forest.joblib": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.ensemble._forest.RandomForestClassifier'>",
+      "size_kb": 34503.1572265625
+    },
+    "models/baseline/svm.joblib": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.svm._classes.SVC'>",
+      "size_kb": 797.7373046875
+    },
+    "models/baseline/scaler.joblib": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.preprocessing._data.StandardScaler'>",
+      "size_kb": 1.2099609375
+    },
+    "models/baseline/label_encoder.joblib": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.preprocessing._label.LabelEncoder'>",
+      "size_kb": 0.5947265625
+    },
+    "models/cnn_model.pth": {
+      "exists": true,
+      "loadable": true,
+      "keys": 123,
+      "size_kb": 43759.744140625
+    },
+    "models/cnn/cnn_model.pth": {
+      "exists": true,
+      "loadable": true,
+      "keys": 32,
+      "size_kb": 34326.748046875
+    },
+    "results/hybrid_cnn/scanner_hybrid.keras": {
+      "exists": true,
+      "loadable": true,
+      "size_kb": 1800.099609375,
+      "inputs": [
+        "(None, 256, 256, 1)",
+        "(None, 44)"
+      ],
+      "outputs": [
+        "(None, 11)"
+      ]
+    },
+    "results/hybrid_cnn/scanner_hybrid_final.keras": {
+      "exists": true,
+      "loadable": true,
+      "size_kb": 1800.099609375,
+      "inputs": [
+        "(None, 256, 256, 1)",
+        "(None, 44)"
+      ],
+      "outputs": [
+        "(None, 11)"
+      ]
+    },
+    "results/hybrid_cnn/hybrid_label_encoder.pkl": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.preprocessing._label.LabelEncoder'>"
+    },
+    "results/hybrid_cnn/hybrid_feat_scaler.pkl": {
+      "exists": true,
+      "loadable": true,
+      "type": "<class 'sklearn.preprocessing._data.StandardScaler'>"
+    },
+    "results/hybrid_cnn/scanner_fingerprints.pkl": {
+      "exists": true,
+      "loadable": true,
+      "type": "dict",
+      "keys": [
+        "Canon120-1",
+        "Canon120-2",
+        "Canon220",
+        "Canon9000-1",
+        "Canon9000-2",
+        "EpsonV370-1",
+        "EpsonV370-2",
+        "EpsonV39-1",
+        "EpsonV39-2",
+        "EpsonV550",
+        "HP"
+      ],
+      "len": 11
+    },
+    "results/hybrid_cnn/features.pkl": {
+      "exists": true,
+      "loadable": true,
+      "type": "dict",
+      "keys": [
+        "features",
+        "labels"
+      ],
+      "len": 2
+    },
+    "results/hybrid_cnn/enhanced_features.pkl": {
+      "exists": true,
+      "loadable": true,
+      "type": "dict",
+      "keys": [
+        "features",
+        "labels"
+      ],
+      "len": 2
+    },
+    "results/hybrid_cnn/fp_keys.npy": {
+      "exists": true,
+      "loadable": true,
+      "shape": [
+        11
+      ],
+      "data": [
+        "Canon120-1",
+        "Canon120-2",
+        "Canon220",
+        "Canon9000-1",
+        "Canon9000-2",
+        "EpsonV370-1",
+        "EpsonV370-2",
+        "EpsonV39-1",
+        "EpsonV39-2",
+        "EpsonV550",
+        "HP"
+      ]
+    }
+  },
+  "datasets": {
+    "combined_metadata": {
+      "rows": 4568,
+      "columns": [
+        "file_name",
+        "main_class",
+        "resolution",
+        "class_label",
+        "width",
+        "height",
+        "aspect_ratio",
+        "file_size_kb",
+        "mean_intensity",
+        "std_intensity",
+        "skewness",
+        "kurtosis",
+        "entropy",
+        "edge_density"
+      ],
+      "class_counts": {
+        "EpsonV370-2": 417,
+        "Canon120-2": 416,
+        "Canon120-1": 416,
+        "Canon220": 416,
+        "Canon9000-1": 416,
+        "EpsonV370-1": 416,
+        "EpsonV39-1": 416,
+        "EpsonV550": 416,
+        "EpsonV39-2": 416,
+        "HP": 416,
+        "Canon9000-2": 407
+      },
+      "main_class_counts": {
+        "Wikipedia": 2368,
+        "Official": 2200
+      }
+    },
+    "test_split": {
+      "rows": 914,
+      "class_counts": {
+        "EpsonV370-2": 84,
+        "EpsonV39-2": 84,
+        "EpsonV550": 83,
+        "Canon120-1": 83,
+        "EpsonV39-1": 83,
+        "Canon9000-1": 83,
+        "EpsonV370-1": 83,
+        "Canon220": 83,
+        "HP": 83,
+        "Canon120-2": 83,
+        "Canon9000-2": 82
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+class_label,scanner_brand,scanner_model,physical_device_id,sample_count,percentage
+Canon120-1,Canon,CanoScan LiDE 120,Unit_1,416,9.11
+Canon120-2,Canon,CanoScan LiDE 120,Unit_2,416,9.11
+Canon220,Canon,CanoScan LiDE 220,Unit_1,416,9.11
+Canon9000-1,Canon,CanoScan 9000F Mark II,Unit_1,416,9.11
+Canon9000-2,Canon,CanoScan 9000F Mark II,Unit_2,407,8.91
+EpsonV370-1,Epson,Perfection V370 Photo,Unit_1,416,9.11
+EpsonV370-2,Epson,Perfection V370 Photo,Unit_2,417,9.13
+EpsonV39-1,Epson,Perfection V39,Unit_1,416,9.11
+EpsonV39-2,Epson,Perfection V39,Unit_2,416,9.11
+EpsonV550,Epson,Perfection V550 Photo,Unit_1,416,9.11
+HP,HP,LaserJet/ScanJet Series,Unit_1,416,9.11

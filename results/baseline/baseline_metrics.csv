@@ -1,0 +1,3 @@
+model,accuracy,macro_precision,macro_recall,macro_f1,device_generalization_accuracy,test_samples,num_classes
+Random Forest,0.5853,0.5793,0.585,0.5787,0.4878,680,11
+SVM (RBF),0.3397,0.3491,0.3397,0.3346,0.2602,680,11

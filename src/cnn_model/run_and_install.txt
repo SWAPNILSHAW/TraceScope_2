@@ -1,0 +1,44 @@
+CPU:
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+GPU:
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+pip install tqdm
+
+
+
+
+
+How to Run
+Train the Model
+python src/cnn_model/train.py --epochs 10 --batch_size 32
+Evaluate the Model
+python src/cnn_model/evaluate.py --model_path models/cnn_model.pth
+
+
+
+(venv) PS E:\mertor\P5_AI_Trace_Finder\AI_Trace_finder> python src/cnn_model/train.py --epochs 10 
+--batch_size 32       
+Using device: cpu
+Preparing data...
+Found official dataset at Data_Set\official
+Found Wikipedia dataset at Data_Set\Wikipedia
+Total images: 4568
+Train: 3656, Val: 456, Test: 456
+Number of classes: 11
+Classes: ['Canon120-1', 'Canon120-2', 'Canon220', 'Canon9000-1', 'Canon9000-2', 'EpsonV370-1', 'EpsonV370-2', 'EpsonV39-1', 'EpsonV39-2', 'EpsonV550', 'HP']
+
+Epoch 1/10
+Train Loss: 2.4024, Train Acc: 9.08%
+Val Loss: 2.3988, Val Acc: 9.65%
+New best model saved to models/cnn/cnn_model.pth
+
+Epoch 2/10
+Train Loss: 2.3939, Train Acc: 10.56%
+Val Loss: 2.3477, Val Acc: 17.54%
+New best model saved to models/cnn/cnn_model.pth
+
+Epoch 3/10
+Training:  35%|█████████████▏                        | 40/115 [22:13<42:09, 33.73s/it, loss=1.86]
+

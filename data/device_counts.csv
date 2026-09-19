@@ -1,0 +1,23 @@
+device_uid,scanner_model,physical_device_id,dpi,sample_count
+Canon_CanoScan9000FMarkII_Unit_1,CanoScan 9000F Mark II,Unit_1,150,209
+Canon_CanoScan9000FMarkII_Unit_1,CanoScan 9000F Mark II,Unit_1,300,207
+Canon_CanoScan9000FMarkII_Unit_2,CanoScan 9000F Mark II,Unit_2,150,208
+Canon_CanoScan9000FMarkII_Unit_2,CanoScan 9000F Mark II,Unit_2,300,199
+Canon_CanoScanLiDE120_Unit_1,CanoScan LiDE 120,Unit_1,150,208
+Canon_CanoScanLiDE120_Unit_1,CanoScan LiDE 120,Unit_1,300,208
+Canon_CanoScanLiDE120_Unit_2,CanoScan LiDE 120,Unit_2,150,208
+Canon_CanoScanLiDE120_Unit_2,CanoScan LiDE 120,Unit_2,300,208
+Canon_CanoScanLiDE220_Unit_1,CanoScan LiDE 220,Unit_1,150,208
+Canon_CanoScanLiDE220_Unit_1,CanoScan LiDE 220,Unit_1,300,208
+Epson_PerfectionV370Photo_Unit_1,Perfection V370 Photo,Unit_1,150,208
+Epson_PerfectionV370Photo_Unit_1,Perfection V370 Photo,Unit_1,300,208
+Epson_PerfectionV370Photo_Unit_2,Perfection V370 Photo,Unit_2,150,210
+Epson_PerfectionV370Photo_Unit_2,Perfection V370 Photo,Unit_2,300,207
+Epson_PerfectionV39_Unit_1,Perfection V39,Unit_1,150,208
+Epson_PerfectionV39_Unit_1,Perfection V39,Unit_1,300,208
+Epson_PerfectionV39_Unit_2,Perfection V39,Unit_2,150,208
+Epson_PerfectionV39_Unit_2,Perfection V39,Unit_2,300,208
+Epson_PerfectionV550Photo_Unit_1,Perfection V550 Photo,Unit_1,150,208
+Epson_PerfectionV550Photo_Unit_1,Perfection V550 Photo,Unit_1,300,208
+HP_LaserJet/ScanJetSeries_Unit_1,LaserJet/ScanJet Series,Unit_1,150,208
+HP_LaserJet/ScanJetSeries_Unit_1,LaserJet/ScanJet Series,Unit_1,300,208

@@ -1,0 +1,75 @@
+# =========================
+# Python cache & compiled files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Virtual Environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Data folders (generated / processed)
+# =========================
+processed_data/
+data/*
+!data/*.csv
+ai_trace_finder/
+models/
+results/hybrid_cnn/
+
+# =========================
+# IDE & Editor settings
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Build & distribution
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Test & coverage
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.swp
+*.bak
