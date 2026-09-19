@@ -12,10 +12,13 @@ import numpy as np
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SPLITS_DIR = os.path.join(PROJECT_ROOT, "splits")
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+MASTER_MANIFEST = os.path.join(DATA_DIR, "dataset_manifest.csv")
 RES_PATH = os.path.join(PROJECT_ROOT, "results", "hybrid_cnn", "official_wiki_residuals.pkl")
 
 # Global singleton cache
 _RESIDUALS_CACHE = None
+_POINTER_MAP = None
 
 def get_residuals_cache():
     global _RESIDUALS_CACHE
@@ -26,13 +29,32 @@ def get_residuals_cache():
             _RESIDUALS_CACHE = pickle.load(f)
     return _RESIDUALS_CACHE
 
+def get_global_pointer_map():
+    global _POINTER_MAP
+    if _POINTER_MAP is None:
+        if not os.path.exists(MASTER_MANIFEST):
+            raise FileNotFoundError(f"Master manifest not found at {MASTER_MANIFEST}")
+        master_df = pd.read_csv(MASTER_MANIFEST)
+        grp_counters = {}
+        _POINTER_MAP = {}
+        for idx, row in master_df.iterrows():
+            ckey = "official" if str(row["source_corpus"]).lower() == "official" else "Wikipedia"
+            clz = row["class_label"]
+            dkey = str(int(row["dpi"]))
+            k = (ckey, clz, dkey)
+            curr = grp_counters.get(k, 0)
+            grp_counters[k] = curr + 1
+            _POINTER_MAP[row["sample_id"]] = (ckey, clz, dkey, curr)
+    return _POINTER_MAP
+
 class TraceScopeResidualDataset(Dataset):
     def __init__(self, manifest_path, label_map=None, transform=None):
         self.df = pd.read_csv(manifest_path)
         self.transform = transform
         
-        # Ensure cache is loaded once
+        # Ensure cache and pointer map are loaded
         get_residuals_cache()
+        pointer_map = get_global_pointer_map()
         
         # Map class labels to integers
         if label_map is None:
@@ -43,19 +65,11 @@ class TraceScopeResidualDataset(Dataset):
             
         self.classes = list(self.label_map.keys())
         
-        # Store index tuples only: (corpus_key, class_lbl, dpi_key, grp_idx, int_label)
+        # Store globally unique index tuples: (corpus_key, class_lbl, dpi_key, grp_idx, int_label)
         self.pointers = []
-        group_counters = {}
-        
         for idx, row in self.df.iterrows():
-            corpus_key = "official" if str(row["source_corpus"]).lower() == "official" else "Wikipedia"
-            class_lbl = row["class_label"]
-            dpi_key = str(int(row["dpi"]))
-            
-            grp_key = (corpus_key, class_lbl, dpi_key)
-            grp_idx = group_counters.get(grp_key, 0)
-            group_counters[grp_key] = grp_idx + 1
-            
+            sid = row["sample_id"]
+            corpus_key, class_lbl, dpi_key, grp_idx = pointer_map[sid]
             self.pointers.append((
                 corpus_key,
                 class_lbl,
