@@ -84,7 +84,7 @@ Input Scanned Image (PNG / TIF / JPG)
 | **5** | **Deep CNN Baseline (ResNet-18)** | Test deep learned residual features using high-pass + ResNet-18 | `resnet18_best.pth`, `training_history.csv`, `loss_accuracy_curves.png`, `test_metrics.csv`, `resnet18_confusion_matrix.png` | **COMPLETE (PASS)**: Locked Test Accuracy = **97.35%**, Macro-F1 = **0.9735** |
 | **6** | **Hybrid CNN Primary Model** | Implement & train dual-branch fusion (Residual CNN + 44 features) | `scanner_hybrid.keras`, scaler, label encoder, training history, test metrics, confusion matrix | **COMPLETE (PASS)**: Locked Test Accuracy = **82.35%**, Macro-F1 = **0.8231** |
 | **7** | **Ablation Study** | Systematically isolate contributions of individual components | 6-experiment matrix (A through F), `ablation_results.csv`, `ablation_comparison_barchart.png`, `ablation_analysis.md` | **COMPLETE (PASS)**: 6 Ablation Experiments Validated (Dual-Branch 82.35% vs CNN 63.82% vs Feat 75.74%) |
-| **8** | **Robustness Testing** | Quantify degradation under common image transformations | JPEG, resize, crop, rotation, brightness, contrast, blur across severity levels; `robustness_matrix.csv` | Reproducible transformation pipeline with documented failure thresholds |
+| **8** | **Robustness Testing** | Quantify degradation under common image transformations | 29 perturbation tests across 7 families, `robustness_matrix.csv`, `robustness_curves.png`, `robustness_analysis.md` | **COMPLETE (PASS)**: Operational envelopes verified across 7 transformation axes |
 | **9** | **Open-Set / Unknown Scanner Detection** | Enable rejection of unseen scanners to prevent false-positive certainty | Hold-out evaluation, cosine/softmax thresholding, ROC/PR curves, `known_vs_unknown_metrics.csv` | Explicit "Unknown Source" decision pathway with validation-calibrated threshold |
 | **10** | **Tampering & Patch-Level Anomaly Detection** | Detect local manipulation via residual & PRNU inconsistency | Synthetic ground-truth manipulation dataset, patch anomaly maps, IoU, Precision/Recall, `localization_metrics.csv` | Quantitative anomaly evaluation against ground truth masks |
 | **11** | **Explainable AI (Grad-CAM)** | Reveal spatial residual regions driving CNN classification | Grad-CAM residual activation heatmaps, overlay figures, qualitative explanations | Clear, reproducible visual explanations scoped as model attribution |
@@ -253,7 +253,7 @@ Input Scanned Image (PNG / TIF / JPG)
   - Degradation curves for each transformation category (`results/robustness/*.png`).
   - Catalog of specific failure modes and breakdown thresholds.
   - `doc/phase_reports/phase_08_report.md`.
-- **Go/No-Go Checkpoint:** PASS when all transformations are generated reproducibly, evaluated systematically, and breakdown thresholds are cataloged.
+- **Go/No-Go Checkpoint:** **PASS (VERIFIED)**: Comprehensive stress tests completed across 29 parameter points on the locked test manifest, confirming contrast invariance (82.79%), JPEG resilience ($Q \ge 85 \to >70\%$), and quantifiable operational boundaries logged to `results/robustness/` and `doc/robustness_analysis.md`.
 
 ---
 

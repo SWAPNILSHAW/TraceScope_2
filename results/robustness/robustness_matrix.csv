@@ -1,0 +1,31 @@
+perturbation_family,severity_level,accuracy,macro_f1,accuracy_delta_percent
+Clean Baseline,None,0.8235,0.8231,0.0
+JPEG Compression,Q=95,0.8118,0.8111,-1.18
+JPEG Compression,Q=85,0.7074,0.6991,-11.62
+JPEG Compression,Q=75,0.6544,0.6365,-16.91
+JPEG Compression,Q=50,0.6132,0.5733,-21.03
+JPEG Compression,Q=30,0.5662,0.5018,-25.74
+Gaussian Blur,sigma=0.5,0.7838,0.7801,-3.97
+Gaussian Blur,sigma=1.0,0.5941,0.5321,-22.94
+Gaussian Blur,sigma=1.5,0.5662,0.4977,-25.74
+Gaussian Blur,sigma=2.0,0.5559,0.4863,-26.76
+Brightness Shift,-25%,0.4029,0.3151,-42.06
+Brightness Shift,-10%,0.4926,0.4262,-33.09
+Brightness Shift,+10%,0.425,0.34,-39.85
+Brightness Shift,+25%,0.2809,0.1733,-54.26
+Contrast Scaling,0.75x,0.8147,0.8138,-0.88
+Contrast Scaling,0.90x,0.8221,0.8216,-0.15
+Contrast Scaling,1.10x,0.8279,0.8274,0.44
+Contrast Scaling,1.25x,0.8206,0.8199,-0.29
+Spatial Rescaling,0.50x,0.5559,0.4864,-26.76
+Spatial Rescaling,0.75x,0.5838,0.5199,-23.97
+Spatial Rescaling,1.25x,0.7132,0.6814,-11.03
+Spatial Rescaling,1.50x,0.7603,0.7511,-6.32
+Rotation / Skew,-5.0 deg,0.6059,0.5456,-21.76
+Rotation / Skew,-2.0 deg,0.6662,0.6206,-15.74
+Rotation / Skew,+2.0 deg,0.6662,0.6203,-15.74
+Rotation / Skew,+5.0 deg,0.6118,0.5517,-21.18
+Boundary Crop,5%,0.5603,0.4928,-26.32
+Boundary Crop,10%,0.5603,0.4928,-26.32
+Boundary Crop,20%,0.5632,0.4963,-26.03
+Boundary Crop,30%,0.5647,0.4976,-25.88
