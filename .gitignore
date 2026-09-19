@@ -29,6 +29,8 @@ ai_trace_finder/
 models/
 results/hybrid_cnn/official_wiki_residuals.pkl
 results/hybrid_cnn/*.keras
+results/hybrid_cnn/*.pkl
+results/hybrid_cnn/*.png
 
 # =========================
 # IDE & Editor settings
