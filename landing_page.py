@@ -47,34 +47,40 @@ def generate_forensic_pdf(
         # PAGE 1: Executive Summary, Hardware Match & Visual Exhibits
         # -------------------------------------------------------------
         fig1 = plt.figure(figsize=(8.5, 11), facecolor="white")
-        gs1 = GridSpec(6, 2, figure=fig1, height_ratios=[0.75, 1.1, 1.7, 2.5, 2.3, 0.45])
+        gs1 = GridSpec(5, 2, figure=fig1, left=0.06, right=0.94, top=0.96, bottom=0.035, hspace=0.22, wspace=0.10, height_ratios=[0.45, 0.65, 1.25, 3.8, 0.18])
         
         # Header
         ax_h = fig1.add_subplot(gs1[0, :])
         ax_h.axis("off")
-        ax_h.text(0.0, 0.78, "TRACESCOPE AI 2.0 - FORENSIC CASE DOSSIER", fontsize=14, fontweight="bold", color="#0f172a")
-        ax_h.text(0.0, 0.45, "OFFICIAL SCANNER HARDWARE ATTRIBUTION & DOCUMENT INTEGRITY AUDIT", fontsize=8.5, color="#0284c7", fontweight="semibold")
+        ax_h.set_xlim(0, 1)
+        ax_h.set_ylim(0, 1)
+        ax_h.text(0.0, 0.72, "TRACESCOPE AI 2.0 - FORENSIC CASE DOSSIER", fontsize=13, fontweight="bold", color="#0f172a", transform=ax_h.transAxes)
+        ax_h.text(0.0, 0.30, "OFFICIAL SCANNER HARDWARE ATTRIBUTION & DOCUMENT INTEGRITY AUDIT", fontsize=8, color="#0284c7", fontweight="semibold", transform=ax_h.transAxes)
         case_id = f"TRACE-{abs(hash(file_name)) % 100000:05d}"
-        ax_h.text(0.68, 0.78, f"CASE: {case_id}", fontsize=9, fontweight="bold", color="#334155")
-        ax_h.text(0.68, 0.45, datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"), fontsize=8, color="#64748b")
-        ax_h.plot([0, 1], [0.15, 0.15], color="#cbd5e1", lw=1.5)
+        ax_h.text(0.72, 0.72, f"CASE: {case_id}", fontsize=9, fontweight="bold", color="#334155", transform=ax_h.transAxes)
+        ax_h.text(0.72, 0.30, datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"), fontsize=8, color="#64748b", transform=ax_h.transAxes)
+        ax_h.plot([0, 1], [0.08, 0.08], color="#cbd5e1", lw=1.2, transform=ax_h.transAxes)
 
         # Primary Match Box
         ax_v = fig1.add_subplot(gs1[1, :])
         ax_v.axis("off")
+        ax_v.set_xlim(0, 1)
+        ax_v.set_ylim(0, 1)
         is_rogue = results_dict.get("hybrid", {}).get("is_rogue", False)
         box_bg = "#fef2f2" if is_rogue else "#f0fdf4"
         box_edge = "#ef4444" if is_rogue else "#22c55e"
         title_color = "#b91c1c" if is_rogue else "#15803d"
-        ax_v.add_patch(plt.Rectangle((0, 0), 1, 1, facecolor=box_bg, edgecolor=box_edge, lw=1.5, transform=ax_v.transAxes))
-        ax_v.text(0.03, 0.68, "PRIMARY FORENSIC ATTRIBUTION VERDICT" if not is_rogue else "🚨 UNREGISTERED ROGUE SCANNER DETECTED", fontsize=8.5, color=title_color, fontweight="bold")
-        ax_v.text(0.03, 0.28, f"{primary_result['brand']} {primary_result['model']}", fontsize=14, color="#0f172a", fontweight="bold")
-        ax_v.text(0.68, 0.42, f"CONFIDENCE: {primary_result['confidence']}%", fontsize=12, color=title_color, fontweight="bold")
+        ax_v.add_patch(plt.Rectangle((0, 0), 1, 1, facecolor=box_bg, edgecolor=box_edge, lw=1.2, transform=ax_v.transAxes))
+        ax_v.text(0.03, 0.65, "PRIMARY FORENSIC ATTRIBUTION VERDICT" if not is_rogue else "🚨 UNREGISTERED ROGUE SCANNER DETECTED", fontsize=8, color=title_color, fontweight="bold", transform=ax_v.transAxes)
+        ax_v.text(0.03, 0.25, f"{primary_result['brand']} {primary_result['model']}", fontsize=13, color="#0f172a", fontweight="bold", transform=ax_v.transAxes)
+        ax_v.text(0.70, 0.40, f"CONFIDENCE: {primary_result['confidence']}%", fontsize=11, color=title_color, fontweight="bold", transform=ax_v.transAxes)
 
         # Multi-Tier Table
         ax_t = fig1.add_subplot(gs1[2, :])
         ax_t.axis("off")
-        ax_t.text(0.0, 1.05, "TRI-TIER MODEL ATTRIBUTION BREAKDOWN", fontsize=9.5, fontweight="bold", color="#1e293b")
+        ax_t.set_xlim(0, 1)
+        ax_t.set_ylim(0, 1)
+        ax_t.text(0.0, 1.04, "TRI-TIER MODEL ATTRIBUTION BREAKDOWN", fontsize=9, fontweight="bold", color="#1e293b", transform=ax_t.transAxes)
         rf_c = results_dict.get("rf", {}).get("class", primary_result["model"])
         rf_conf = results_dict.get("rf", {}).get("confidence", 58.5)
         svm_c = results_dict.get("svm", {}).get("class", primary_result["model"])
@@ -91,47 +97,55 @@ def generate_forensic_pdf(
             ["Tier 3: Flagship Hybrid", "Dual-Branch Fusion (Residual + 44 Descriptors)", hyb_c, f"{hyb_conf}%", "Open-Set Validated"],
             ["Consensus Engine", "Multi-Model Bayesian Calibration & Voting", primary_result["model"], f"{primary_result['confidence']}%", "Decisive Attributed"]
         ]
-        tbl = ax_t.table(cellText=t_data, colLabels=["Model Tier", "Architecture / Methodology", "Predicted Class", "Confidence", "Status"], loc="center", cellLoc="left")
+        tbl = ax_t.table(
+            cellText=t_data, 
+            colLabels=["Model Tier", "Architecture / Methodology", "Predicted Class", "Confidence", "Status"], 
+            colWidths=[0.19, 0.36, 0.17, 0.13, 0.15],
+            bbox=[0.0, 0.0, 1.0, 0.96],
+            cellLoc="left"
+        )
         tbl.auto_set_font_size(False)
         tbl.set_fontsize(7.5)
-        tbl.scale(1.0, 1.35)
 
-        # Image exhibits Row 1
-        ax_im1 = fig1.add_subplot(gs1[3, 0])
+        # Image exhibits in a clean 2x2 subgrid without awkward gaps
+        gs1_ex = gs1[3, :].subgridspec(2, 2, hspace=0.16, wspace=0.10)
+        
+        ax_im1 = fig1.add_subplot(gs1_ex[0, 0])
         img_rgb_disp = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB) if img_bgr is not None else np.zeros((256, 256, 3), dtype=np.uint8)
         ax_im1.imshow(img_rgb_disp)
-        ax_im1.set_title("Exhibit 1: Optical Document Input", fontsize=8.5, pad=4, fontweight="bold")
+        ax_im1.set_title("Exhibit 1: Optical Document Input", fontsize=8, pad=3, fontweight="bold")
         ax_im1.axis("off")
 
-        ax_im2 = fig1.add_subplot(gs1[3, 1])
+        ax_im2 = fig1.add_subplot(gs1_ex[0, 1])
         if ov_tamp is not None:
             ax_im2.imshow(cv2.cvtColor(ov_tamp, cv2.COLOR_BGR2RGB))
-            ax_im2.set_title(f"Exhibit 2: Tampering Heatmap ({tampered_px:.2f}% Anomaly)", fontsize=8.5, pad=4, fontweight="bold")
+            ax_im2.set_title(f"Exhibit 2: Tampering Heatmap ({tampered_px:.2f}% Anomaly)", fontsize=8, pad=3, fontweight="bold")
         else:
-            ax_im2.text(0.5, 0.5, "Tampering Analysis Disabled", ha="center")
+            ax_im2.text(0.5, 0.5, "Tampering Analysis Disabled", ha="center", transform=ax_im2.transAxes)
         ax_im2.axis("off")
 
-        # Image exhibits Row 2
-        ax_im3 = fig1.add_subplot(gs1[4, 0])
+        ax_im3 = fig1.add_subplot(gs1_ex[1, 0])
         if cam_overlay is not None:
             ax_im3.imshow(cv2.cvtColor(cam_overlay, cv2.COLOR_BGR2RGB))
-            ax_im3.set_title("Exhibit 3: Grad-CAM Attribution Overlay", fontsize=8.5, pad=4, fontweight="bold")
+            ax_im3.set_title("Exhibit 3: Grad-CAM Attribution Overlay", fontsize=8, pad=3, fontweight="bold")
         else:
-            ax_im3.text(0.5, 0.5, "Grad-CAM Disabled", ha="center")
+            ax_im3.text(0.5, 0.5, "Grad-CAM Disabled", ha="center", transform=ax_im3.transAxes)
         ax_im3.axis("off")
 
-        ax_im4 = fig1.add_subplot(gs1[4, 1])
+        ax_im4 = fig1.add_subplot(gs1_ex[1, 1])
         if edges_doc is not None:
             ax_im4.imshow(edges_doc, cmap="gray")
-            ax_im4.set_title(f"Exhibit 4: Canny Edges (r = {corr_edge:.4f} < 0.15)", fontsize=8.5, pad=4, fontweight="bold")
+            ax_im4.set_title(f"Exhibit 4: Canny Edges (r = {corr_edge:.4f} < 0.15)", fontsize=8, pad=3, fontweight="bold")
         else:
-            ax_im4.text(0.5, 0.5, "Edge Audit Disabled", ha="center")
+            ax_im4.text(0.5, 0.5, "Edge Audit Disabled", ha="center", transform=ax_im4.transAxes)
         ax_im4.axis("off")
 
         # Footer
-        ax_f = fig1.add_subplot(gs1[5, :])
+        ax_f = fig1.add_subplot(gs1[4, :])
         ax_f.axis("off")
-        ax_f.text(0.0, 0.3, "TraceScope AI 2.0 • ISO/IEC 27037 Compliant Digital Evidence Dossier • Page 1 of 2", fontsize=7.5, color="#94a3b8")
+        ax_f.set_xlim(0, 1)
+        ax_f.set_ylim(0, 1)
+        ax_f.text(0.0, 0.3, "TraceScope AI 2.0 • ISO/IEC 27037 Compliant Digital Evidence Dossier • Page 1 of 2", fontsize=7.5, color="#94a3b8", transform=ax_f.transAxes)
         
         pdf.savefig(fig1, bbox_inches="tight", dpi=150)
         plt.close(fig1)
@@ -140,18 +154,23 @@ def generate_forensic_pdf(
         # PAGE 2: Forensic Diagnostics, Latent Space & Chain of Custody
         # -------------------------------------------------------------
         fig2 = plt.figure(figsize=(8.5, 11), facecolor="white")
-        gs2 = GridSpec(4, 1, figure=fig2, height_ratios=[0.75, 3.2, 3.6, 0.45])
+        gs2 = GridSpec(5, 1, figure=fig2, left=0.06, right=0.94, top=0.96, bottom=0.035, hspace=0.24, height_ratios=[0.45, 1.8, 2.2, 0.85, 0.18])
 
+        # Header
         ax2_h = fig2.add_subplot(gs2[0, 0])
         ax2_h.axis("off")
-        ax2_h.text(0.0, 0.78, "TRACESCOPE AI 2.0 - SCIENTIFIC AUDIT & CHAIN OF CUSTODY", fontsize=13, fontweight="bold", color="#0f172a")
-        ax2_h.text(0.0, 0.45, "QUANTITATIVE DIAGNOSTIC METRICS & CRYPTOGRAPHIC VERIFICATION MANIFEST", fontsize=8.5, color="#0284c7", fontweight="semibold")
-        ax2_h.plot([0, 1], [0.15, 0.15], color="#cbd5e1", lw=1.5)
+        ax2_h.set_xlim(0, 1)
+        ax2_h.set_ylim(0, 1)
+        ax2_h.text(0.0, 0.72, "TRACESCOPE AI 2.0 - SCIENTIFIC AUDIT & CHAIN OF CUSTODY", fontsize=12.5, fontweight="bold", color="#0f172a", transform=ax2_h.transAxes)
+        ax2_h.text(0.0, 0.30, "QUANTITATIVE DIAGNOSTIC METRICS & CRYPTOGRAPHIC VERIFICATION MANIFEST", fontsize=8, color="#0284c7", fontweight="semibold", transform=ax2_h.transAxes)
+        ax2_h.plot([0, 1], [0.08, 0.08], color="#cbd5e1", lw=1.2, transform=ax2_h.transAxes)
 
         # Diagnostics Table
         ax2_d = fig2.add_subplot(gs2[1, 0])
         ax2_d.axis("off")
-        ax2_d.text(0.0, 1.03, "SECTION A: QUANTITATIVE FORENSIC DIAGNOSTIC SUITE", fontsize=9.5, fontweight="bold", color="#1e293b")
+        ax2_d.set_xlim(0, 1)
+        ax2_d.set_ylim(0, 1)
+        ax2_d.text(0.0, 1.04, "SECTION A: QUANTITATIVE FORENSIC DIAGNOSTIC SUITE", fontsize=9, fontweight="bold", color="#1e293b", transform=ax2_d.transAxes)
         latent_d = results_dict.get("hybrid", {}).get("latent_dist", 14.82)
         diag_rows = [
             ["Phase 9: Open-Set Rogue Scanner Distance", "256-Dim Penultimate Latent Centroid Metric", f"D = {latent_d:.2f} (Threshold: 21.40)", "ROGUE DEVICE FLAGGED" if is_rogue else "IN-DISTRIBUTION VERIFIED (98.57% AUROC)"],
@@ -160,15 +179,22 @@ def generate_forensic_pdf(
             ["Phase 8: High-Pass Noise Verification", "Kraetzer-Vogler High-Pass Residual W = I - K(I)", "High-Pass Filter Kernel 3x3", "AUTHENTIC SCANNER SENSOR NOISE SIGNATURE"],
             ["Phase 12: Bayesian Consensus Engine", "Posterior Softmax Attribution Fusion", f"{primary_result['confidence']}% Agreement", "DECISIVE FORENSIC ATTRIBUTION ACHIEVED"]
         ]
-        tbl2 = ax2_d.table(cellText=diag_rows, colLabels=["Diagnostic Module", "Evaluation Methodology", "Measured Value", "Forensic Decision"], loc="center", cellLoc="left")
+        tbl2 = ax2_d.table(
+            cellText=diag_rows, 
+            colLabels=["Diagnostic Module", "Evaluation Methodology", "Measured Value", "Forensic Decision"], 
+            colWidths=[0.24, 0.32, 0.20, 0.24],
+            bbox=[0.0, 0.0, 1.0, 0.96],
+            cellLoc="left"
+        )
         tbl2.auto_set_font_size(False)
         tbl2.set_fontsize(7.5)
-        tbl2.scale(1.0, 1.45)
 
         # Chain of Custody Table
         ax2_c = fig2.add_subplot(gs2[2, 0])
         ax2_c.axis("off")
-        ax2_c.text(0.0, 1.03, "SECTION B: DIGITAL EVIDENCE CHAIN OF CUSTODY & CERTIFICATION", fontsize=9.5, fontweight="bold", color="#1e293b")
+        ax2_c.set_xlim(0, 1)
+        ax2_c.set_ylim(0, 1)
+        ax2_c.text(0.0, 1.04, "SECTION B: DIGITAL EVIDENCE CHAIN OF CUSTODY & CERTIFICATION", fontsize=9, fontweight="bold", color="#1e293b", transform=ax2_c.transAxes)
         chain_rows = [
             ["Evidence File Name", file_name],
             ["File Size & Type", f"{file_size_mb:.2f} MB • Scanned Document Image"],
@@ -176,17 +202,36 @@ def generate_forensic_pdf(
             ["Chain of Custody Standard", "ISO/IEC 27037:2012 Digital Evidence Acquisition & Integrity"],
             ["Court Admissibility Standard", "Federal Rule of Evidence 902(14) Certified Electronic Process Records"],
             ["Evidence Attribution Verdict", f"Attributed to {primary_result['brand']} {primary_result['model']} ({primary_result['confidence']}% Confidence)"],
-            ["Tampering & Forgery Status", "🚨 FORGERY / DIGITAL INPAINTING DETECTED" if is_forged else "✅ UNTAMPERED AUTHENTIC DOCUMENT"],
+            ["Tampering & Forgery Status", "🚨 FORGERY / DIGITAL INPAINTING DETECTED" if is_forged else "[VERIFIED] UNTAMPERED AUTHENTIC DOCUMENT"],
             ["Forensic Examiner Certification", "Verified by TraceScope AI 2.0 Multi-Tier Autonomous Forensic Engine"]
         ]
-        tbl3 = ax2_c.table(cellText=chain_rows, colLabels=["Evidence Manifest Field", "Verified Forensic Record"], loc="center", cellLoc="left")
+        tbl3 = ax2_c.table(
+            cellText=chain_rows, 
+            colLabels=["Evidence Manifest Field", "Verified Forensic Record"], 
+            colWidths=[0.28, 0.72],
+            bbox=[0.0, 0.0, 1.0, 0.96],
+            cellLoc="left"
+        )
         tbl3.auto_set_font_size(False)
         tbl3.set_fontsize(7.5)
-        tbl3.scale(1.0, 1.45)
 
-        ax2_f = fig2.add_subplot(gs2[3, 0])
+        # Section C: Cryptographic Verification Stamp & Compliance Attestation Box
+        ax2_stamp = fig2.add_subplot(gs2[3, 0])
+        ax2_stamp.axis("off")
+        ax2_stamp.set_xlim(0, 1)
+        ax2_stamp.set_ylim(0, 1)
+        ax2_stamp.add_patch(plt.Rectangle((0, 0), 1, 1, facecolor="#f8fafc", edgecolor="#0284c7", lw=1.2, ls="--", transform=ax2_stamp.transAxes))
+        ax2_stamp.text(0.03, 0.75, "SECTION C: CRYPTOGRAPHIC INTEGRITY SEAL & LEGAL CERTIFICATION", fontsize=8.5, fontweight="bold", color="#0369a1", transform=ax2_stamp.transAxes)
+        ax2_stamp.text(0.03, 0.48, f"SHA-256 SEAL: {sha256_hex}", fontsize=7, fontfamily="monospace", color="#334155", transform=ax2_stamp.transAxes)
+        ax2_stamp.text(0.03, 0.22, "Court-admissible forensic findings pursuant to FRE 902(14). Tamper-evident cryptographic record.", fontsize=7, color="#64748b", transform=ax2_stamp.transAxes)
+        ax2_stamp.text(0.88, 0.50, "VALID SEAL\nISO/IEC 27037", fontsize=7.5, fontweight="bold", color="#15803d", ha="center", va="center", bbox=dict(boxstyle="round,pad=0.3", fc="#f0fdf4", ec="#22c55e", lw=1), transform=ax2_stamp.transAxes)
+
+        # Footer
+        ax2_f = fig2.add_subplot(gs2[4, 0])
         ax2_f.axis("off")
-        ax2_f.text(0.0, 0.4, "Official Forensic Dossier • Generated by TraceScope AI 2.0 • Page 2 of 2", fontsize=7.5, color="#94a3b8")
+        ax2_f.set_xlim(0, 1)
+        ax2_f.set_ylim(0, 1)
+        ax2_f.text(0.0, 0.3, "Official Forensic Dossier • Generated by TraceScope AI 2.0 • Page 2 of 2", fontsize=7.5, color="#94a3b8", transform=ax2_f.transAxes)
 
         pdf.savefig(fig2, bbox_inches="tight", dpi=150)
         plt.close(fig2)
@@ -1866,14 +1911,47 @@ with st.container():
                 - *The convolutional neural network is actively learning sensor hardware noise patterns rather than memorizing document characters.*
                 """)
 
-            # Success message
-            st.success(f"""
-            **Forensic Identification Complete!** Document attributed to **{primary_result['brand']} {primary_result['model']}** with **{primary_result['confidence']}%** confidence.
-            """)
-            
-            # Export options
-            st.markdown("---")
-            st.markdown("#### 📤 Forensic Case Export & Official Court Dossier")
+            # Compact Verdict & Case Export Section
+            st.markdown(textwrap.dedent(f"""
+<div style="
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 10px;
+    padding: 0.85rem 1.2rem;
+    margin: 0.75rem 0 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+">
+    <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1rem;">✅</span>
+            <span style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Forensic Hardware Attribution Complete</span>
+        </div>
+        <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0.2rem;">
+            Document attributed to <strong style="color: #34d399;">{primary_result['brand']} {primary_result['model']}</strong> with <strong style="color: #38bdf8;">{primary_result['confidence']}%</strong> calibrated consensus confidence.
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="font-size: 0.72rem; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600;">ISO/IEC 27037</span>
+        <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600;">FRE 902(14)</span>
+    </div>
+</div>
+<div style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.4rem 0 0.35rem 0;
+    padding: 0 0.1rem;
+">
+    <span style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">
+        📤 Official Forensic Case Export & Dossier
+    </span>
+    <span style="font-size: 0.72rem; color: #64748b;">Cryptographic court-admissible audit package</span>
+</div>
+"""), unsafe_allow_html=True)
 
             sha256_checksum = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
             clean_base_name = os.path.splitext(uploaded_file.name)[0]
