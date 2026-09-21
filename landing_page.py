@@ -66,7 +66,10 @@ HAS_TORCH = False
 try:
     import torch
     import torch.nn.functional as F
-    from cnn_model.model import SimpleCNN
+    try:
+        from src.cnn_model.model import SimpleCNN
+    except (ImportError, ModuleNotFoundError):
+        from cnn_model.model import SimpleCNN
     HAS_TORCH = True
 except Exception:
     HAS_TORCH = False
@@ -75,7 +78,10 @@ HAS_SKLEARN = False
 try:
     import joblib
     import pickle
-    from baseline.predict_baseline import predict_scanner as predict_baseline
+    try:
+        from src.baseline.predict_baseline import predict_scanner as predict_baseline
+    except (ImportError, ModuleNotFoundError):
+        from baseline.predict_baseline import predict_scanner as predict_baseline
     HAS_SKLEARN = True
 except Exception:
     HAS_SKLEARN = False
