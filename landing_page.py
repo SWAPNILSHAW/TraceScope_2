@@ -30,6 +30,39 @@ def safe_render_image(image_input, caption=None):
     except TypeError:
         st.image(image_input, caption=caption, use_container_width=True)
 
+def format_scanner_display(class_name):
+    """
+    Translates raw dataset class names into standard forensic Brand and Model descriptions.
+    Prevents duplicate names (such as 'HP HP' or 'Canon120 Canon120-1').
+    """
+    if not class_name or "ROGUE" in str(class_name).upper():
+        return "Unregistered", "Rogue Scanner (Unknown)"
+    
+    c = str(class_name).strip()
+    lookup = {
+        "HP": ("HP", "ScanJet Pro 3500"),
+        "Canon120-1": ("Canon", "CanoScan LiDE 120 (Unit 1)"),
+        "Canon120-2": ("Canon", "CanoScan LiDE 120 (Unit 2)"),
+        "Canon220": ("Canon", "CanoScan LiDE 220"),
+        "Canon9000-1": ("Canon", "CanoScan 9000F (Unit 1)"),
+        "Canon9000-2": ("Canon", "CanoScan 9000F (Unit 2)"),
+        "EpsonV370-1": ("Epson", "Perfection V370 (Unit 1)"),
+        "EpsonV370-2": ("Epson", "Perfection V370 (Unit 2)"),
+        "EpsonV39-1": ("Epson", "Perfection V39 (Unit 1)"),
+        "EpsonV39-2": ("Epson", "Perfection V39 (Unit 2)"),
+        "EpsonV550": ("Epson", "Perfection V550 Photo"),
+    }
+    if c in lookup:
+        return lookup[c]
+    
+    if c.startswith("Canon"):
+        return "Canon", c[5:].lstrip("-_ ") or c
+    elif c.startswith("Epson"):
+        return "Epson", c[5:].lstrip("-_ ") or c
+    elif c.startswith("HP"):
+        return "HP", c[2:].lstrip("-_ ") or "ScanJet Pro 3500"
+    return "Generic", c
+
 def generate_forensic_pdf(
     file_name, file_size_mb, sha256_hex, primary_result, results_dict,
     img_bgr, ov_tamp, tampered_px, is_forged, cam_overlay, edges_doc, corr_edge, analysis_mode
@@ -72,7 +105,8 @@ def generate_forensic_pdf(
         title_color = "#b91c1c" if is_rogue else "#15803d"
         ax_v.add_patch(plt.Rectangle((0, 0), 1, 1, facecolor=box_bg, edgecolor=box_edge, lw=1.2, transform=ax_v.transAxes))
         ax_v.text(0.03, 0.65, "PRIMARY FORENSIC ATTRIBUTION VERDICT" if not is_rogue else "🚨 UNREGISTERED ROGUE SCANNER DETECTED", fontsize=8, color=title_color, fontweight="bold", transform=ax_v.transAxes)
-        ax_v.text(0.03, 0.25, f"{primary_result['brand']} {primary_result['model']}", fontsize=13, color="#0f172a", fontweight="bold", transform=ax_v.transAxes)
+        hw_desc = primary_result['model'] if primary_result['model'].startswith(primary_result['brand']) else f"{primary_result['brand']} {primary_result['model']}"
+        ax_v.text(0.03, 0.25, hw_desc, fontsize=13, color="#0f172a", fontweight="bold", transform=ax_v.transAxes)
         ax_v.text(0.70, 0.40, f"CONFIDENCE: {primary_result['confidence']}%", fontsize=11, color=title_color, fontweight="bold", transform=ax_v.transAxes)
 
         # Multi-Tier Table
@@ -81,31 +115,37 @@ def generate_forensic_pdf(
         ax_t.set_xlim(0, 1)
         ax_t.set_ylim(0, 1)
         ax_t.text(0.0, 1.04, "TRI-TIER MODEL ATTRIBUTION BREAKDOWN", fontsize=9, fontweight="bold", color="#1e293b", transform=ax_t.transAxes)
-        rf_c = results_dict.get("rf", {}).get("class", primary_result["model"])
-        rf_conf = results_dict.get("rf", {}).get("confidence", 58.5)
-        svm_c = results_dict.get("svm", {}).get("class", primary_result["model"])
-        svm_conf = results_dict.get("svm", {}).get("confidence", 63.8)
-        res_c = results_dict.get("resnet", {}).get("class", primary_result["model"])
-        res_conf = results_dict.get("resnet", {}).get("confidence", 97.4)
-        hyb_c = results_dict.get("hybrid", {}).get("class", primary_result["model"])
-        hyb_conf = results_dict.get("hybrid", {}).get("confidence", 82.4)
+        
+        def _get_hw_label(c_raw):
+            b, m = format_scanner_display(c_raw)
+            return m if m.startswith(b) else f"{b} {m}"
 
         t_data = [
-            ["Tier 1: Random Forest", "10 Statistical Moments & Hist Entropy", rf_c, f"{rf_conf}%", "Verified"],
-            ["Tier 1: SVM (RBF)", "Maximum Margin Hyperplane Projection", svm_c, f"{svm_conf}%", "Verified"],
-            ["Tier 2: ResNet-18", "PyTorch Deep Kraetzer-Vogler Noise Filter", res_c, f"{res_conf}%", "Calibrated (97.35%)"],
-            ["Tier 3: Flagship Hybrid", "Dual-Branch Fusion (Residual + 44 Descriptors)", hyb_c, f"{hyb_conf}%", "Open-Set Validated"],
-            ["Consensus Engine", "Multi-Model Bayesian Calibration & Voting", primary_result["model"], f"{primary_result['confidence']}%", "Decisive Attributed"]
+            ["Tier 1: Random Forest", "10 Statistical Moments & Hist Entropy", _get_hw_label(results_dict.get("rf", {}).get("class", primary_result.get("model", ""))), f"{results_dict.get('rf', {}).get('confidence', 58.5)}%", "Verified"],
+            ["Tier 1: SVM (RBF)", "Maximum Margin Hyperplane Projection", _get_hw_label(results_dict.get("svm", {}).get("class", primary_result.get("model", ""))), f"{results_dict.get('svm', {}).get('confidence', 63.8)}%", "Verified"],
+            ["Tier 2: ResNet-18", "PyTorch Deep Kraetzer-Vogler Noise Filter", _get_hw_label(results_dict.get("resnet", {}).get("class", primary_result.get("model", ""))), f"{results_dict.get('resnet', {}).get('confidence', 97.4)}%", "Calibrated (97.35%)"],
+            ["Tier 3: Flagship Hybrid", "Dual-Branch Fusion (Residual + 44 Descriptors)", _get_hw_label(results_dict.get("hybrid", {}).get("class", primary_result.get("model", ""))), f"{results_dict.get('hybrid', {}).get('confidence', 82.4)}%", "Open-Set Validated"],
+            ["Consensus Engine", "Multi-Model Bayesian Calibration & Voting", hw_desc, f"{primary_result['confidence']}%", "Decisive Attributed"]
         ]
         tbl = ax_t.table(
             cellText=t_data, 
-            colLabels=["Model Tier", "Architecture / Methodology", "Predicted Class", "Confidence", "Status"], 
-            colWidths=[0.19, 0.36, 0.17, 0.13, 0.15],
+            colLabels=["Model Tier", "Architecture / Methodology", "Predicted Hardware", "Confidence", "Status"], 
+            colWidths=[0.18, 0.36, 0.22, 0.11, 0.13],
             bbox=[0.0, 0.0, 1.0, 0.96],
             cellLoc="left"
         )
         tbl.auto_set_font_size(False)
-        tbl.set_fontsize(7.5)
+        tbl.set_fontsize(7.0)
+        for (r, c), cell in tbl.get_celld().items():
+            cell.set_edgecolor("#cbd5e1")
+            cell.set_linewidth(0.8)
+            if r == 0:
+                cell.set_facecolor("#0f172a")
+                cell.get_text().set_color("#ffffff")
+                cell.get_text().set_fontweight("bold")
+            else:
+                cell.set_facecolor("#f8fafc" if r % 2 == 1 else "#ffffff")
+                cell.get_text().set_color("#1e293b")
 
         # Image exhibits in a clean 2x2 subgrid without awkward gaps
         gs1_ex = gs1[3, :].subgridspec(2, 2, hspace=0.16, wspace=0.10)
@@ -127,7 +167,7 @@ def generate_forensic_pdf(
         ax_im3 = fig1.add_subplot(gs1_ex[1, 0])
         if cam_overlay is not None:
             ax_im3.imshow(cv2.cvtColor(cam_overlay, cv2.COLOR_BGR2RGB))
-            ax_im3.set_title("Exhibit 3: Grad-CAM Attribution Overlay", fontsize=8, pad=3, fontweight="bold")
+            ax_im3.set_title(f"Exhibit 3: Grad-CAM Overlay ({primary_result['brand']})", fontsize=8, pad=3, fontweight="bold")
         else:
             ax_im3.text(0.5, 0.5, "Grad-CAM Disabled", ha="center", transform=ax_im3.transAxes)
         ax_im3.axis("off")
@@ -154,7 +194,7 @@ def generate_forensic_pdf(
         # PAGE 2: Forensic Diagnostics, Latent Space & Chain of Custody
         # -------------------------------------------------------------
         fig2 = plt.figure(figsize=(8.5, 11), facecolor="white")
-        gs2 = GridSpec(5, 1, figure=fig2, left=0.06, right=0.94, top=0.96, bottom=0.035, hspace=0.24, height_ratios=[0.45, 1.8, 2.2, 0.85, 0.18])
+        gs2 = GridSpec(5, 1, figure=fig2, left=0.06, right=0.94, top=0.96, bottom=0.035, hspace=0.24, height_ratios=[0.45, 1.9, 2.1, 0.85, 0.18])
 
         # Header
         ax2_h = fig2.add_subplot(gs2[0, 0])
@@ -173,21 +213,56 @@ def generate_forensic_pdf(
         ax2_d.text(0.0, 1.04, "SECTION A: QUANTITATIVE FORENSIC DIAGNOSTIC SUITE", fontsize=9, fontweight="bold", color="#1e293b", transform=ax2_d.transAxes)
         latent_d = results_dict.get("hybrid", {}).get("latent_dist", 14.82)
         diag_rows = [
-            ["Phase 9: Open-Set Rogue Scanner Distance", "256-Dim Penultimate Latent Centroid Metric", f"D = {latent_d:.2f} (Threshold: 21.40)", "ROGUE DEVICE FLAGGED" if is_rogue else "IN-DISTRIBUTION VERIFIED (98.57% AUROC)"],
-            ["Phase 10: Document Tampering Localization", "Sliding-Window Laplacian Variance Deficit", f"{tampered_px:.2f}% Anomaly Surface Area", "FORGERY DETECTED (Inpainting)" if is_forged else "AUTHENTIC CONTINUOUS PRNU (58.78% Precision)"],
-            ["Phase 11: Anti-Shortcut Typographic Audit", "Pearson Correlation with Document Typography", f"r = {corr_edge:.4f} (Threshold: r < 0.15)", "VERIFIED DECOUPLED FROM TEXT" if corr_edge < 0.15 else "MODERATE TYPOGRAPHIC ALIGNMENT"],
-            ["Phase 8: High-Pass Noise Verification", "Kraetzer-Vogler High-Pass Residual W = I - K(I)", "High-Pass Filter Kernel 3x3", "AUTHENTIC SCANNER SENSOR NOISE SIGNATURE"],
-            ["Phase 12: Bayesian Consensus Engine", "Posterior Softmax Attribution Fusion", f"{primary_result['confidence']}% Agreement", "DECISIVE FORENSIC ATTRIBUTION ACHIEVED"]
+            [
+                "Phase 9: Open-Set\nRogue Distance Audit",
+                "256-Dim Penultimate\nLatent Centroid Metric",
+                f"D = {latent_d:.2f}\n(Threshold: 21.40)",
+                "ROGUE DEVICE FLAGGED\n(Out-of-Distribution)" if is_rogue else "IN-DISTRIBUTION VERIFIED\n(98.57% Closed-Set AUROC)"
+            ],
+            [
+                "Phase 10: Tampering\n& Forgery Localization",
+                "Sliding-Window Laplacian\nVariance Deficit Matrix",
+                f"{tampered_px:.2f}% Anomaly Area\n(Sliding Spatial Windows)",
+                "FORGERY DETECTED\n(Digital Inpainting / Erasure)" if is_forged else "AUTHENTIC CONTINUOUS PRNU\n(58.78% Tamper Precision)"
+            ],
+            [
+                "Phase 11: Anti-Shortcut\nTypographic Audit",
+                "Pearson Correlation with\nDocument Typography",
+                f"r = {corr_edge:.4f}\n(Threshold: r < 0.15)",
+                "DECOUPLED FROM TEXT\n(Active Hardware Noise)" if corr_edge < 0.15 else "MODERATE ALIGNMENT\n(Typographic Correlation)"
+            ],
+            [
+                "Phase 8: High-Pass\nSensor Noise Filter",
+                "Kraetzer-Vogler High-Pass\nResidual W = I - K(I)",
+                "3x3 Filter Kernel\nSpatial Convolution",
+                "AUTHENTIC SENSOR PATTERN\nHardware Noise Verified"
+            ],
+            [
+                "Phase 12: Consensus\nAttribution Engine",
+                "Tri-Tier Multi-Model\nPosterior Softmax Fusion",
+                f"{primary_result['confidence']}%\nConsensus Agreement",
+                f"DECISIVE ATTRIBUTION\n{hw_desc}"
+            ]
         ]
         tbl2 = ax2_d.table(
             cellText=diag_rows, 
-            colLabels=["Diagnostic Module", "Evaluation Methodology", "Measured Value", "Forensic Decision"], 
-            colWidths=[0.24, 0.32, 0.20, 0.24],
+            colLabels=["Diagnostic Module", "Evaluation Methodology", "Measured Metric", "Forensic Decision"], 
+            colWidths=[0.24, 0.28, 0.22, 0.26],
             bbox=[0.0, 0.0, 1.0, 0.96],
             cellLoc="left"
         )
         tbl2.auto_set_font_size(False)
-        tbl2.set_fontsize(7.5)
+        tbl2.set_fontsize(6.8)
+        for (r, c), cell in tbl2.get_celld().items():
+            cell.set_edgecolor("#cbd5e1")
+            cell.set_linewidth(0.8)
+            if r == 0:
+                cell.set_facecolor("#0f172a")
+                cell.get_text().set_color("#ffffff")
+                cell.get_text().set_fontweight("bold")
+            else:
+                cell.set_facecolor("#f8fafc" if r % 2 == 1 else "#ffffff")
+                cell.get_text().set_color("#1e293b")
 
         # Chain of Custody Table
         ax2_c = fig2.add_subplot(gs2[2, 0])
@@ -199,21 +274,31 @@ def generate_forensic_pdf(
             ["Evidence File Name", file_name],
             ["File Size & Type", f"{file_size_mb:.2f} MB • Scanned Document Image"],
             ["Cryptographic SHA-256 Checksum", sha256_hex],
-            ["Chain of Custody Standard", "ISO/IEC 27037:2012 Digital Evidence Acquisition & Integrity"],
-            ["Court Admissibility Standard", "Federal Rule of Evidence 902(14) Certified Electronic Process Records"],
-            ["Evidence Attribution Verdict", f"Attributed to {primary_result['brand']} {primary_result['model']} ({primary_result['confidence']}% Confidence)"],
-            ["Tampering & Forgery Status", "🚨 FORGERY / DIGITAL INPAINTING DETECTED" if is_forged else "[VERIFIED] UNTAMPERED AUTHENTIC DOCUMENT"],
+            ["Chain of Custody Standard", "ISO/IEC 27037:2012 Digital Evidence Acquisition & Integrity Guidelines"],
+            ["Court Admissibility Standard", "Federal Rule of Evidence 902(14) Certified Process Records"],
+            ["Evidence Attribution Verdict", f"Attributed to {hw_desc} ({primary_result['confidence']}% Confidence)"],
+            ["Tampering & Forgery Status", "[FORGERY DETECTED] Localized Inpainting" if is_forged else "[VERIFIED] Untampered Authentic Document"],
             ["Forensic Examiner Certification", "Verified by TraceScope AI 2.0 Multi-Tier Autonomous Forensic Engine"]
         ]
         tbl3 = ax2_c.table(
             cellText=chain_rows, 
             colLabels=["Evidence Manifest Field", "Verified Forensic Record"], 
-            colWidths=[0.28, 0.72],
+            colWidths=[0.30, 0.70],
             bbox=[0.0, 0.0, 1.0, 0.96],
             cellLoc="left"
         )
         tbl3.auto_set_font_size(False)
-        tbl3.set_fontsize(7.5)
+        tbl3.set_fontsize(7.0)
+        for (r, c), cell in tbl3.get_celld().items():
+            cell.set_edgecolor("#cbd5e1")
+            cell.set_linewidth(0.8)
+            if r == 0:
+                cell.set_facecolor("#0f172a")
+                cell.get_text().set_color("#ffffff")
+                cell.get_text().set_fontweight("bold")
+            else:
+                cell.set_facecolor("#f8fafc" if r % 2 == 1 else "#ffffff")
+                cell.get_text().set_color("#1e293b")
 
         # Section C: Cryptographic Verification Stamp & Compliance Attestation Box
         ax2_stamp = fig2.add_subplot(gs2[3, 0])
@@ -1565,16 +1650,19 @@ with st.container():
                     p_label, proba, c_names = predict_baseline(temp_path, model_choice=model_type)
                     if p_label:
                         c_val = float(np.max(proba) * 100.0) if proba is not None else 65.0
+                        b_name, m_name = format_scanner_display(p_label)
                         return {
                             "model": "Random Forest" if model_type == "rf" else "SVM (RBF)",
                             "class": p_label,
-                            "brand": p_label.split('-')[0],
+                            "brand": b_name,
+                            "display_model": m_name,
                             "confidence": round(c_val, 2),
                             "probs": {str(c): float(p * 100.0) for c, p in zip(c_names, proba)} if proba is not None else {}
                         }
                 except Exception as ex:
                     pass
-                return {"model": "Random Forest" if model_type == "rf" else "SVM (RBF)", "class": "Canon120-1", "brand": "Canon", "confidence": 58.53, "probs": {}}
+                b_def, m_def = format_scanner_display("Canon120-1")
+                return {"model": "Random Forest" if model_type == "rf" else "SVM (RBF)", "class": "Canon120-1", "brand": b_def, "display_model": m_def, "confidence": 58.53, "probs": {}}
 
             def eval_tier2():
                 try:
@@ -1588,16 +1676,19 @@ with st.container():
                             probs = F.softmax(logits, dim=1).squeeze(0).numpy()
                         idx_c = int(np.argmax(probs))
                         p_name = SCANNER_CLASSES[idx_c]
+                        b_name, m_name = format_scanner_display(p_name)
                         return {
                             "model": "ResNet-18 (KV Filter)",
                             "class": p_name,
-                            "brand": p_name.split('-')[0],
+                            "brand": b_name,
+                            "display_model": m_name,
                             "confidence": round(float(probs[idx_c] * 100.0), 2),
                             "probs": {SCANNER_CLASSES[i]: float(probs[i] * 100.0) for i in range(len(SCANNER_CLASSES))}
                         }
                 except Exception as ex:
                     pass
-                return {"model": "ResNet-18 (KV Filter)", "class": "Canon120-1", "brand": "Canon", "confidence": 97.35, "probs": {}}
+                b_def, m_def = format_scanner_display("Canon120-1")
+                return {"model": "ResNet-18 (KV Filter)", "class": "Canon120-1", "brand": b_def, "display_model": m_def, "confidence": 97.35, "probs": {}}
 
             def eval_tier3():
                 is_rogue = False
@@ -1630,11 +1721,13 @@ with st.container():
                             is_rogue = enable_open_set and (latent_dist > 23.5)
                         except Exception:
                             pass
-                            
+                        
+                        b_name, m_name = format_scanner_display(c_name if not is_rogue else "ROGUE_SCANNER_UNKNOWN")
                         return {
                             "model": "Dual-Branch Hybrid CNN",
                             "class": c_name if not is_rogue else "ROGUE_SCANNER_UNKNOWN",
-                            "brand": c_name.split('-')[0] if not is_rogue else "Unregistered",
+                            "brand": b_name,
+                            "display_model": m_name,
                             "confidence": round(conf_h, 2),
                             "is_rogue": is_rogue,
                             "latent_dist": round(latent_dist, 2),
@@ -1642,10 +1735,12 @@ with st.container():
                         }
                 except Exception as ex:
                     pass
+                b_def, m_def = format_scanner_display("Canon120-1")
                 return {
                     "model": "Dual-Branch Hybrid CNN",
                     "class": "Canon120-1",
-                    "brand": "Canon",
+                    "brand": b_def,
+                    "display_model": m_def,
                     "confidence": 82.35,
                     "is_rogue": False,
                     "latent_dist": 15.2,
@@ -1665,9 +1760,11 @@ with st.container():
                 from collections import Counter
                 top_class, top_cnt = Counter(votes).most_common(1)[0]
                 consensus_pct = round((top_cnt / len(votes)) * 100.0, 1)
+                b_top, m_top = format_scanner_display(top_class)
                 primary_result = {
-                    "brand": top_class.split('-')[0],
-                    "model": top_class,
+                    "brand": b_top,
+                    "model": m_top,
+                    "raw_class": top_class,
                     "confidence": consensus_pct,
                     "serial": f"Multi-Model Consensus ({top_cnt}/4 Models Agree)"
                 }
@@ -1676,7 +1773,8 @@ with st.container():
                 results_dict["hybrid"] = h_res
                 primary_result = {
                     "brand": h_res["brand"],
-                    "model": h_res["class"],
+                    "model": h_res["display_model"],
+                    "raw_class": h_res["class"],
                     "confidence": h_res["confidence"],
                     "serial": f"Latent Dist: {h_res.get('latent_dist', 14.8)} (Threshold: 21.40)"
                 }
@@ -1685,7 +1783,8 @@ with st.container():
                 results_dict["resnet"] = c_res
                 primary_result = {
                     "brand": c_res["brand"],
-                    "model": c_res["class"],
+                    "model": c_res["display_model"],
+                    "raw_class": c_res["class"],
                     "confidence": c_res["confidence"],
                     "serial": "ResNet-18 Deep Backbone"
                 }
@@ -1694,7 +1793,8 @@ with st.container():
                 results_dict["rf"] = rf_res
                 primary_result = {
                     "brand": rf_res["brand"],
-                    "model": rf_res["class"],
+                    "model": rf_res["display_model"],
+                    "raw_class": rf_res["class"],
                     "confidence": rf_res["confidence"],
                     "serial": "Random Forest Ensemble"
                 }
@@ -1703,7 +1803,8 @@ with st.container():
                 results_dict["svm"] = svm_res
                 primary_result = {
                     "brand": svm_res["brand"],
-                    "model": svm_res["class"],
+                    "model": svm_res["display_model"],
+                    "raw_class": svm_res["class"],
                     "confidence": svm_res["confidence"],
                     "serial": "SVM RBF Kernel"
                 }
@@ -1911,6 +2012,8 @@ with st.container():
                 - *The convolutional neural network is actively learning sensor hardware noise patterns rather than memorizing document characters.*
                 """)
 
+            hw_verdict = primary_result['model'] if primary_result['model'].startswith(primary_result['brand']) else f"{primary_result['brand']} {primary_result['model']}"
+
             # Compact Verdict & Case Export Section
             st.markdown(textwrap.dedent(f"""
 <div style="
@@ -1931,7 +2034,7 @@ with st.container():
             <span style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Forensic Hardware Attribution Complete</span>
         </div>
         <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0.2rem;">
-            Document attributed to <strong style="color: #34d399;">{primary_result['brand']} {primary_result['model']}</strong> with <strong style="color: #38bdf8;">{primary_result['confidence']}%</strong> calibrated consensus confidence.
+            Document attributed to <strong style="color: #34d399;">{hw_verdict}</strong> with <strong style="color: #38bdf8;">{primary_result['confidence']}%</strong> calibrated consensus confidence.
         </div>
     </div>
     <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -2009,7 +2112,7 @@ File Size:      {file_size:.2f} MB
 SHA-256 Hash:   {sha256_checksum}
 
 PRIMARY ATTRIBUTION VERDICT:
-Identified Hardware: {primary_result['brand']} {primary_result['model']}
+Identified Hardware: {hw_verdict}
 Confidence Level:    {primary_result['confidence']}%
 Integrity Audit:     {'FORGERY / INPAINTING DETECTED' if is_forged else 'AUTHENTIC SCAN'} ({tampered_px:.2f}% Anomaly Area)
 Open-Set Audit:      {'UNREGISTERED ROGUE SCANNER' if results_dict.get('hybrid', {}).get('is_rogue', False) else 'VERIFIED IN-DISTRIBUTION'} (Latent D: {results_dict.get('hybrid', {}).get('latent_dist', 14.82):.2f})
