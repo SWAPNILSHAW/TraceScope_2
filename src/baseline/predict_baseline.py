@@ -2,9 +2,32 @@ import os
 import cv2
 import numpy as np
 import joblib
-from skimage.filters import sobel
-from scipy.stats import skew, kurtosis, entropy
 import pandas as pd
+
+# Optional scipy/skimage imports with pure NumPy/OpenCV fallbacks
+try:
+    from skimage.filters import sobel
+except Exception:
+    def sobel(img):
+        gx = cv2.Sobel(img, cv2.CV_32F, 1, 0, ksize=3)
+        gy = cv2.Sobel(img, cv2.CV_32F, 0, 1, ksize=3)
+        edges = np.hypot(gx, gy)
+        mx = np.max(edges)
+        return edges / (mx + 1e-8)
+
+try:
+    from scipy.stats import skew, kurtosis, entropy
+except Exception:
+    def skew(p):
+        m, s = np.mean(p), np.std(p) + 1e-8
+        return float(np.mean(((p - m) / s) ** 3))
+    def kurtosis(p):
+        m, s = np.mean(p), np.std(p) + 1e-8
+        return float(np.mean(((p - m) / s) ** 4) - 3.0)
+    def entropy(counts):
+        probs = counts / (np.sum(counts) + 1e-8)
+        probs = probs[probs > 0]
+        return float(-np.sum(probs * np.log(probs)))
 
 # Paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -29,14 +52,15 @@ def compute_metadata_features(img, file_path):
     file_size_kb = os.path.getsize(file_path) / 1024.0
 
     pixels = img.flatten()
-    mean_intensity = np.mean(pixels)
-    std_intensity = np.std(pixels)
+    mean_intensity = float(np.mean(pixels))
+    std_intensity = float(np.std(pixels))
     skewness = skew(pixels)
     kurt = kurtosis(pixels)
-    ent = entropy(np.histogram(pixels, bins=256, range=(0, 1))[0] + 1e-6)
+    hist_counts, _ = np.histogram(pixels, bins=256, range=(0, 1))
+    ent = entropy(hist_counts + 1e-6)
 
     edges = sobel(img)
-    edge_density = np.mean(edges > 0.1)
+    edge_density = float(np.mean(edges > 0.1))
 
     return {
         "width": w,
