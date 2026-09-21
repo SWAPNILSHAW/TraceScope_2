@@ -76,3 +76,4 @@ htmlcov/
 *.tmp
 *.swp
 *.bak
+temp_uploads/

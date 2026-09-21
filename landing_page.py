@@ -4,6 +4,7 @@ import random
 from PIL import Image
 import numpy as np
 import pandas as pd
+import cv2
 from datetime import datetime
 from streamlit.components.v1 import html as components_html
 import io
@@ -112,7 +113,10 @@ def get_resnet18_model():
         if not os.path.exists(weights_path):
             return None
         model = SimpleCNN(num_classes=len(SCANNER_CLASSES))
-        state_dict = torch.load(weights_path, map_location="cpu")
+        try:
+            state_dict = torch.load(weights_path, map_location="cpu", weights_only=True)
+        except Exception:
+            state_dict = torch.load(weights_path, map_location="cpu")
         model.load_state_dict(state_dict)
         model.eval()
         return model
