@@ -11,11 +11,22 @@ import textwrap
 import os
 import sys
 import warnings
+import logging
 
-# Suppress backend C++ logging and oneDNN numerical difference warnings
+# Suppress backend C++ logging, Keras deprecation messages, and oneDNN numerical warnings
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore')
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('keras').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
+def safe_render_image(image_input, caption=None):
+    """Render image using width='stretch' to eliminate deprecation warning, with backward fallback."""
+    try:
+        st.image(image_input, caption=caption, width="stretch")
+    except TypeError:
+        st.image(image_input, caption=caption, use_container_width=True)
 
 # Add current_dir and src to sys.path to ensure modules can be imported
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +50,12 @@ SCANNER_CLASSES = [
 HAS_TF = False
 try:
     import tensorflow as tf
+    tf.get_logger().setLevel('ERROR')
+    try:
+        import absl.logging
+        absl.logging.set_verbosity(absl.logging.ERROR)
+    except Exception:
+        pass
     from tensorflow import keras
     HAS_TF = True
 except Exception:
@@ -630,16 +647,16 @@ with st.sidebar:
     # Quick Action Buttons
     col_q1, col_q2 = st.columns(2)
     with col_q1:
-        if st.button("🔄 Clear Cache", use_container_width=True):
+        if st.button("🔄 Clear Cache", width="stretch"):
             st.rerun()
     with col_q2:
-        if st.button("📥 Export Logs", use_container_width=True):
+        if st.button("📥 Export Logs", width="stretch"):
             st.success("📁 Logs exported successfully!")
     
-    if st.button("🔍 New Analysis", type="primary", use_container_width=True):
+    if st.button("🔍 New Analysis", type="primary", width="stretch"):
         st.session_state['new_analysis'] = True
     
-    if st.button("📋 Generate Report", use_container_width=True):
+    if st.button("📋 Generate Report", width="stretch"):
         st.info("📄 Report generation started...")
     
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
@@ -1076,56 +1093,113 @@ digraph G {
     # Layout Settings
     rankdir=TB;
     bgcolor="transparent";
-    ranksep=0.8;
-    nodesep=0.5;
+    ranksep=0.7;
+    nodesep=0.4;
     splines=ortho;
     
-    # Node Styles
+    # Global Node Styles
     node [
         shape=box,
         style="filled,rounded",
-        fontname="Inter, sans-serif",
-        fontsize=11,
-        fillcolor="#1e1e24",
+        fontname="Arial, sans-serif",
+        fontsize=10,
+        fillcolor="#161b26",
         color="#00d4ff",
-        fontcolor="#e0e0e0",
-        penwidth=1.5,
-        height=0.6,
-        width=1.8
+        fontcolor="#e2e8f0",
+        penwidth=1.4,
+        margin="0.15,0.1"
     ];
     
-    # Edge Style
+    # Global Edge Style
     edge [
         color="#00d4ff",
-        penwidth=1.8,
-        arrowsize=0.8,
+        penwidth=1.6,
+        arrowsize=0.7,
         arrowhead=vee
     ];
-    
-    # Define Nodes with enhanced styling
-    Input [label="📄 Document Input\n& Preprocessing", fillcolor="#2a2a3a", color="#00d4ff"];
-    Noise [label="📉 Noise Pattern\nAnalysis", fillcolor="#2a2a3a", color="#00d4ff"];
-    Freq [label="🌊 Frequency Domain\nAnalysis", fillcolor="#2a2a3a", color="#00d4ff"];
-    Texture [label="🔍 Texture & Artifact\nDetection", fillcolor="#2a2a3a", color="#00d4ff"];
-    Feature [label="⚡ Feature\nExtraction", fillcolor="#2a2a3a", color="#00d4ff"];
-    Model [label="🧠 AI Model\nEnsemble", fillcolor="#004e66", color="#00d4ff", fontcolor="#ffffff"];
-    Database [label="🗄️ Scanner\nDatabase", fillcolor="#2a2a3a", color="#00d4ff"];
-    Output [label="✅ Identification\nResults", fillcolor="#025B79", color="#00d4ff", fontcolor="#ffffff"];
-    
-    # Connections
-    Input -> Noise;
-    Input -> Freq;
-    Input -> Texture;
-    Noise -> Feature;
-    Freq -> Feature;
-    Texture -> Feature;
-    Feature -> Model;
-    Database -> Model;
-    Model -> Output;
+
+    # Subgraph 1: Document Ingestion & Optical Normalization
+    subgraph cluster_0 {
+        label="PHASE 0-1: DOCUMENT INGESTION & OPTICAL PREPROCESSING";
+        color="#00d4ff66";
+        style="rounded,dashed";
+        fontcolor="#80deea";
+        fontsize=11;
+        DocInput [label="📄 Scanned Document\\n(JPG / PNG / TIF / PDF)", fillcolor="#1e293b", color="#00d4ff"];
+        Preproc [label="⚙️ Optical Normalization\\nGrayscale & 256x256 Center ROI", fillcolor="#1e293b", color="#00d4ff"];
+        DocInput -> Preproc;
+    }
+
+    # Subgraph 2: Forensic Signal Decomposition
+    subgraph cluster_1 {
+        label="PHASE 2-4: FORENSIC FEATURE & RESIDUAL EXTRACTION";
+        color="#00d4ff66";
+        style="rounded,dashed";
+        fontcolor="#80deea";
+        fontsize=11;
+        KVFilter [label="⚡ High-Pass Kraetzer-Vogler Filter\\nNoise Residual W = I - K(I)", fillcolor="#0f2b46", color="#00d4ff"];
+        Feat44 [label="📊 44 Handcrafted Descriptors\\nPRNU Energy, GLCM, FFT & Moments", fillcolor="#0f2b46", color="#00d4ff"];
+        SlidingLap [label="🔍 Sliding-Window Laplacian Matrix\\nLocal Variance Deficit Mapping", fillcolor="#0f2b46", color="#00d4ff"];
+        Preproc -> KVFilter;
+        Preproc -> Feat44;
+        Preproc -> SlidingLap;
+    }
+
+    # Subgraph 3: Tri-Tier Model Inference
+    subgraph cluster_2 {
+        label="PHASE 5-7: TRI-TIER FORENSIC ATTRIBUTION ENGINES";
+        color="#00d4ff66";
+        style="rounded,dashed";
+        fontcolor="#80deea";
+        fontsize=11;
+        Tier1 [label="🌲 Tier 1: Statistical Baselines\\nRandom Forest (58.5%) & SVM RBF (63.8%)", fillcolor="#1f2d3d", color="#80deea"];
+        Tier2 [label="⚡ Tier 2: ResNet-18 Deep CNN\\nPyTorch Residual Noise Backbone (97.4%)", fillcolor="#0c3b5e", color="#00d4ff", fontcolor="#ffffff"];
+        Tier3 [label="🏆 Tier 3: Flagship Hybrid CNN\\nDual-Branch Fusion (Residual + 44 Feat) (82.4%)", fillcolor="#004e66", color="#00ff88", fontcolor="#ffffff"];
+        
+        Feat44 -> Tier1;
+        KVFilter -> Tier2;
+        KVFilter -> Tier3;
+        Feat44 -> Tier3;
+    }
+
+    # Subgraph 4: Robustness & Diagnostics
+    subgraph cluster_3 {
+        label="PHASE 8-11: ROBUSTNESS, INTEGRITY & EXPLAINABILITY AUDITS";
+        color="#00d4ff66";
+        style="rounded,dashed";
+        fontcolor="#80deea";
+        fontsize=11;
+        OpenSet [label="🛡️ Phase 9: Open-Set Rogue Rejection\\n256-Dim Latent Centroid Distance (98.6% AUROC)", fillcolor="#2d1b4e", color="#a855f7"];
+        TamperAudit [label="🔍 Phase 10: Tampering Localization\\nInpainting & Erasure Heatmap (58.8% Prec)", fillcolor="#4a2818", color="#f97316"];
+        GradCAM [label="🧠 Phase 11: Grad-CAM Explainability\\nCanny Edge Anti-Shortcut Audit (r < 0.15)", fillcolor="#133e38", color="#10b981"];
+        
+        Tier3 -> OpenSet;
+        SlidingLap -> TamperAudit;
+        Tier2 -> GradCAM;
+    }
+
+    # Subgraph 5: Synthesis & Verdict
+    subgraph cluster_4 {
+        label="PHASE 12-13: FORENSIC VERDICT & EVIDENCE DOSSIER";
+        color="#00d4ff66";
+        style="rounded,dashed";
+        fontcolor="#80deea";
+        fontsize=11;
+        Consensus [label="⚖️ Multi-Tier Consensus Engine\\nBayesian Calibration & Majority Voting", fillcolor="#1e3a5f", color="#00d4ff"];
+        Verdict [label="📋 Court-Admissible Forensic Dossier\\n11-Class Attribution & SHA-256 Chain of Custody", fillcolor="#025B79", color="#00ff88", fontcolor="#ffffff"];
+        
+        Tier1 -> Consensus;
+        Tier2 -> Consensus;
+        Tier3 -> Consensus;
+        OpenSet -> Consensus;
+        TamperAudit -> Consensus;
+        GradCAM -> Consensus;
+        Consensus -> Verdict;
+    }
 }
 """
 
-st.graphviz_chart(graph, use_container_width=True)
+st.graphviz_chart(graph, width="stretch")
 
 # -----------------------------------------------------------------------------
 # 9. Live Analysis Lab
@@ -1169,7 +1243,7 @@ with st.container():
             
             # Preview Image
             try:
-                st.image(uploaded_file, caption="Preview", use_container_width=True)
+                safe_render_image(uploaded_file, caption="Preview")
             except Exception:
                 pass
         
@@ -1217,7 +1291,7 @@ with st.container():
         analyze_btn = st.button(
             "🚀 Execute Forensic Attribution", 
             type="primary", 
-            use_container_width=True,
+            width="stretch",
             disabled=not uploaded_file
         )
 
@@ -1567,9 +1641,9 @@ with st.container():
                 
                 t_col1, t_col2 = st.columns(2)
                 with t_col1:
-                    st.image(uploaded_file, caption="Original Document", use_container_width=True)
+                    safe_render_image(uploaded_file, caption="Original Document")
                 with t_col2:
-                    st.image(ov_tamp, caption="Forensic Tampering Anomaly Heatmap (Red/Yellow = Manipulated Regions)", use_container_width=True)
+                    safe_render_image(ov_tamp, caption="Forensic Tampering Anomaly Heatmap (Red/Yellow = Manipulated Regions)")
                 
                 if is_forged:
                     st.error(f"🚨 **DOCUMENT FORGERY DETECTED**: Approximately {tampered_px:.2f}% of the document surface exhibits localized noise suppression characteristic of digital inpainting or content erasure!")
@@ -1598,9 +1672,9 @@ with st.container():
                 
                 x_col1, x_col2 = st.columns(2)
                 with x_col1:
-                    st.image(cam_overlay, caption=f"Grad-CAM Attribution Overlay (Target: {primary_result['model']})", use_container_width=True)
+                    safe_render_image(cam_overlay, caption=f"Grad-CAM Attribution Overlay (Target: {primary_result['model']})")
                 with x_col2:
-                    st.image(edges_doc, caption="Macroscopic Canny Edges (Document Typography)", use_container_width=True)
+                    safe_render_image(edges_doc, caption="Macroscopic Canny Edges (Document Typography)")
                 
                 st.info(f"""
                 **Forensic Edge-Leakage Audit Summary:**  
@@ -1619,13 +1693,13 @@ with st.container():
             st.markdown("#### 📤 Forensic Case Export")
             col_exp1, col_exp2, col_exp3 = st.columns(3)
             with col_exp1:
-                if st.button("📄 Export Official PDF Case Report", use_container_width=True):
+                if st.button("📄 Export Official PDF Case Report", width="stretch"):
                     st.success("Official court-admissible forensic case report compiled!")
             with col_exp2:
-                if st.button("📊 Export Audit CSV Manifest", use_container_width=True):
+                if st.button("📊 Export Audit CSV Manifest", width="stretch"):
                     st.success("Metrics and cryptographic checksums exported to CSV!")
             with col_exp3:
-                if st.button("🔗 Generate Evidence Hash Chain", use_container_width=True):
+                if st.button("🔗 Generate Evidence Hash Chain", width="stretch"):
                     st.info(f"Evidence SHA-256: {abs(hash(primary_result['model'] + str(primary_result['confidence']))):016x}")
 
         elif not uploaded_file:
