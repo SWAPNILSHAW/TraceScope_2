@@ -10,8 +10,13 @@ import io
 import textwrap
 import os
 import sys
+import warnings
 
-# Add src to sys.path to ensure we can import modules if running from root or src
+# Suppress backend C++ logging and oneDNN numerical difference warnings
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+warnings.filterwarnings('ignore')
+
 # Add current_dir and src to sys.path to ensure modules can be imported
 current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, "src")
@@ -34,6 +39,7 @@ SCANNER_CLASSES = [
 HAS_TF = False
 try:
     import tensorflow as tf
+    from tensorflow import keras
     HAS_TF = True
 except Exception:
     HAS_TF = False
@@ -1323,7 +1329,7 @@ with st.container():
                         
                         # Open-Set Check
                         try:
-                            feat_m = keras.Model(inputs=m_hyb.inputs, outputs=m_hyb.get_layer("dense_1").output)
+                            feat_m = tf.keras.Model(inputs=m_hyb.inputs, outputs=m_hyb.get_layer("dense_1").output)
                             l_vec = feat_m([r_in, f_sc]).numpy()[0]
                             latent_dist = float(np.linalg.norm(l_vec))
                             is_rogue = enable_open_set and (latent_dist > 23.5)
