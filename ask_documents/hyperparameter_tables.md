@@ -1,0 +1,32 @@
+# Comprehensive Hyperparameter & System Specification Tables
+
+The following table details all structural, architectural, and algorithmic hyperparameters governing TraceScope AI 2.0:
+
+| Model / Pipeline Component | Hyperparameter / Setting | Value / Specification | Rationale / Standard |
+| --- | --- | --- | --- |
+| Tier 1: Random Forest Baseline | Number of Estimators (Trees) | 100 | Ensemble variance reduction |
+| Tier 1: Random Forest Baseline | Split Criterion | Information Gain (Entropy) | Maximal discrimination on statistical moments |
+| Tier 1: Random Forest Baseline | Max Tree Depth | None (Full Expansion) | Leaf purity bound |
+| Tier 1: Random Forest Baseline | Random Seed | 42 | Deterministic reproducibility |
+| Tier 1: Random Forest Baseline | Input Feature Dimensions | 10 Features | Statistical noise moments & entropy |
+| Tier 1: SVM Baseline | Kernel Function | Radial Basis Function (RBF) | Nonlinear boundary projection |
+| Tier 1: SVM Baseline | Regularization Parameter (C) | 10.0 | Balanced margin violation penalty |
+| Tier 1: SVM Baseline | Kernel Coefficient (gamma) | scale (1 / (n_features * X.var())) | Variance-adaptive bandwidth |
+| Tier 1: SVM Baseline | Feature Scaling | StandardScaler (Zero-mean, Unit-variance) | RBF isotropic metric requirement |
+| Tier 2: Deep ResNet-18 Baseline | Base Backbone | PyTorch torchvision ResNet-18 | Standard residual benchmark |
+| Tier 2: Deep ResNet-18 Baseline | Forensic Pre-filter | Kraetzer-Vogler 5x5 High-Pass Core | Suppress typographic document edges |
+| Tier 2: Deep ResNet-18 Baseline | Input Patch Dimensions | 256 x 256 x 1 (Grayscale Residual) | High-frequency spatial resolution |
+| Tier 2: Deep ResNet-18 Baseline | Optimizer & Initial LR | Adam (Initial LR = 1e-4, beta1=0.9, beta2=0.999) | Adaptive momentum gradient descent |
+| Tier 2: Deep ResNet-18 Baseline | Weight Decay | 1e-4 | L2 regularization against overfitting |
+| Tier 2: Deep ResNet-18 Baseline | Batch Size & Epochs | Batch Size = 32, Epochs = 25 | GPU memory & stable convergence |
+| Tier 2: Deep ResNet-18 Baseline | LR Scheduler | ReduceLROnPlateau (factor=0.5, patience=3) | Fine-grained local minimum descent |
+| Tier 3: Flagship Hybrid CNN | Spatial Branch Architecture | 3x Conv2D (32, 64, 128 filters; 3x3 kernel, ReLU) + MaxPooling(2x2) + Dropout(0.25) + GAP(128) | Deep spatial noise descriptor extraction |
+| Tier 3: Flagship Hybrid CNN | Handcrafted Branch Architecture | Dense(64, ReLU) + Dropout(0.20) | Physical feature dimension alignment |
+| Tier 3: Flagship Hybrid CNN | Fusion & Bottleneck Layers | Concatenate(192) -> Dense(256, ReLU) + Dropout(0.40) -> Dense(11, Softmax) | Cross-modal late fusion bottleneck |
+| Tier 3: Flagship Hybrid CNN | Handcrafted Descriptors | 44 Dimensions (11 PRNU + 3 FFT + 26 LBP + 4 GLCM Moments) | Multi-domain physical fingerprinting |
+| Tier 3: Flagship Hybrid CNN | Optimizer & Batch Size | Adam (LR = 1e-4), Batch Size = 32, Epochs = 35 | Loss convergence without gradient explosion |
+| Tier 3: Flagship Hybrid CNN | Loss Function | Categorical Cross-Entropy | Multi-class probabilistic attribution |
+| Open-Set Rogue Rejection Module | Distance Metric & Latent Space | Euclidean Distance to Known Centroids in 256-D Penultimate Bottleneck | Direct feature geometry without softmax distortion |
+| Open-Set Rogue Rejection Module | Calibrated Decision Threshold (tau) | tau = 2.84 | Yields 95.16% Unknown TPR at 3.06% Known FPR |
+| Tampering Localization Engine | Sliding Window Patch Size & Stride | Window = 64 x 64 pixels, Stride = 32 pixels | Sub-word typographic boundary localization |
+| Tampering Localization Engine | Residual Variance Ratio Threshold | V_ratio < 0.35 (Inpainting) or V_ratio > 2.80 (Splicing) | Energy deficit & boundary step detection |
